@@ -9,5 +9,5 @@ doc/sprint0/team.md
 | Mark Feng       |    B    |  215527161 | markfeng024@gmail.com |markfeng024@gmail.com | mark110019       |
 | Hemish Ahuja    |    A    |  219894450 | Hemishahuja@gmail.com |hemishahuja@gmail.com |  Hemishahuja     |
 
-Discord Chat/Server Invite: https://discord.gg/225WvyG6tA
+Discord Chat/Server Invite: [https://discord.gg/Wk8WCqtVUc](https://discord.gg/Wk8WCqtVUc)
 
