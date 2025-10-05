@@ -7,6 +7,7 @@ doc/sprint0/team.md
 | Divy Parikh     |    A    |  220152427 | divy0511@my.yorku.ca  |divy0511@my.yorku.ca  | pickle_1610      |
 | Arushi Bisht    |    A    |  219830744 | arushi09@my.yorku.ca  |4374633391- Whatsapp  | pam_tor          |
 | Mark Feng       |    B    |  215527161 | markfeng024@gmail.com |markfeng024@gmail.com | mark110019       |
+| Hemish Ahuja    |    B    |  219894450 | Hemishahuja@gmail.com | 6473952779           | nothisispatrick  |
 
 Discord Chat/Server Invite: https://discord.gg/225WvyG6tA
 
