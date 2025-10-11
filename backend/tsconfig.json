@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    // File Layout
+    "rootDir": "src",
+    "outDir": "dist",
+
+    // Environment Settings (Node backend)
+    "module": "commonjs",
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "types": ["node"],
+
+    // Interop / Build Behavior
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    // Type Safety
+    "strict": true
+
+    // Note: no "jsx" on the backend
+    // Note: no "declaration" needed for apps
+  }
+}
