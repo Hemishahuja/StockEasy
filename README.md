@@ -43,5 +43,3 @@ It provides a virtual environment to observe real or simulated stock prices, buy
 
 
 
-## **LICENSE**
-This project is open-source under the **MIT License**.
