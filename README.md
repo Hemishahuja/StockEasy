@@ -1,45 +1,63 @@
-# **STOCK EASY**
+# stock-easy
 
-## **PROJECT OVERVIEW**
-**Stock Easy** is a beginner-friendly stock trading simulator that helps users learn how to trade and manage portfolios without financial risk.  
-It provides a virtual environment to observe real or simulated stock prices, buy and sell shares, and track profits and losses.
+Boilerplate Spring Boot service
 
+## Prerequisites
 
+- Java 21
+- Maven 3.9+
 
-## **OBJECTIVES**
-- Help beginners understand trading and portfolio management.  
-- Focus on simplicity, clarity, and hands-on learning.  
-- Support both simulated and real API-based stock data.  
+## Quick Start
 
+To build and run the application:
 
+```bash
+./mvnw spring-boot:run
+```
 
-## **KEY FEATURES**
-- **Market Data:** View live or simulated stock prices.  
-- **Trading:** Buy and sell shares virtually.  
-- **Portfolio Tracking:** Monitor balance, profit/loss, and performance.  
-- **History:** Review past trades and outcomes.  
+The application will be available at `http://localhost:8080`.
 
+## Common Maven Commands
 
+- **Clean and Verify (compile, test, package):**
+  ```bash
+  ./mvnw clean verify
+  ```
 
-## **TARGET USERS**
-- **Students** learning finance or economics.  
-- **Beginners** practicing investing safely.  
-- **Developers** experimenting with APIs or financial data.  
+- **Run Application:**
+  ```bash
+  ./mvnw spring-boot:run
+  ```
 
+- **Run Tests:**
+  ```bash
+  ./mvnw test
+  ```
 
+## Profiles
 
-## **CORE PRINCIPLES**
-- **Simplicity:** Clean and intuitive design.  
-- **Transparency:** Immediate feedback on trades.  
-- **Educational Focus:** Prioritize learning over complexity.  
-- **Scalability:** Follows MVC or full-stack architecture for growth.  
+The application uses Spring profiles to manage configuration.
 
+- `dev`: For local development. Activated with `-Pdev` or `SPRING_PROFILES_ACTIVE=dev`.
+- `test`: For testing. Activated with `-Ptest` or `SPRING_PROFILES_ACTIVE=test`.
+- `prod`: Default profile for production.
 
+To run with a specific profile:
 
-## **FUTURE IMPROVEMENTS**
-- Integration with real-time financial APIs.  
-- Leaderboards and performance analytics.  
-- Responsive and mobile-friendly interface.  
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
 
+## Docker
 
+To build and run the application with Docker:
 
+1.  **Build the Docker image:**
+    ```bash
+    docker build -t stock-easy .
+    ```
+
+2.  **Run the Docker container:**
+    ```bash
+    docker run -p 8080:8080 stock-easy
+    ```
