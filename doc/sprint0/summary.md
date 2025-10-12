@@ -29,12 +29,6 @@ The main objective is to help beginners understand the basics of trading, stock 
 4. A financial literacy enthusiast is organizing a workshop\! They can ask participants to use  *Stock Easy* as an interactive tool for their workshop, and also do for their community programs, or financial bootcamps. It can also help newcomers grasp complex financial ideas through hands-on engagement.  
    
 
-#### **Key Use Cases**
-
-* **View Market Data:** Users can view a list of stock prices (live API or generated).  
-* **Portfolio Tracking:** The system calculates profit/loss and portfolio performance in real time.  
-* **History and Analytics:** Users can review previous transactions and analyze outcomes.
-
 **Key Principles**
 
 * **Simplicity over complexity:**  The interface must stay clean, intuitive, and free of overwhelming financial jargon.    
