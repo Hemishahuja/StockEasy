@@ -4,27 +4,127 @@ server:
 spring:
   application:
     name: stock-easy
+  profiles:
+    active: dev
 
+  # Database Configuration
+  datasource:
+    url: jdbc:h2:mem:stock_easy_db
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+
+  # Thymeleaf Configuration
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+  # WebJars Configuration
+  webjars:
+    enabled: true
+
+# Actuator Configuration
 management:
   endpoints:
     web:
       exposure:
-        include: "health,info"
+        include: "health,info,metrics"
+  endpoint:
+    health:
+      show-details: always
 
-# TODO(config): Configure database connection
-# spring:
-#   datasource:
-#     url: jdbc:postgresql://localhost:5432/stock_easy
-#     username: user
-#     password: password
+# Logging Configuration
+logging:
+  level:
+    com.example.stockeasy: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-# TODO(config): Configure logging levels
-# logging:
-#   level:
-#     com.example.stockeasy: DEBUG
+# Application-specific Configuration
+app:
+  security:
+    jwt:
+      secret: "your-256-bit-secret-key-change-in-production"
+      expiration: 86400000 # 24 hours in milliseconds
+  stock:
+    default-cash-balance: 100000.00
+    max-watchlist-items: 20
+    max-portfolio-items: 50
+    market-data-refresh-interval: 300000 # 5 minutes in milliseconds
 
-# TODO(config): Configure CORS
-# server:
-#   cors:
-#     allowed-origins: "http://localhost:3000"
-#     allowed-methods: "GET,POST,PUT,DELETE"
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/stock_easy_dev
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  thymeleaf:
+    cache: false
+
+---
+# Test Profile
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  thymeleaf:
+    cache: false
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:stock_easy}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  thymeleaf:
+    cache: true
