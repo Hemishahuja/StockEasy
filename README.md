@@ -8,8 +8,7 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-orange.svg)](https://www.postgresql.org/)
 [![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.1.0-red.svg)](https://www.thymeleaf.org/)
-[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.2-purple.svg)](https://getbootstrap.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 
 **Empowering users to learn stock trading in a risk-free environment with real-time market simulation.**
 
@@ -206,10 +205,5 @@ curl -X POST "http://localhost:8080/api/auth/login" \
 <div align="center">
 
 
-[![GitHub Stars](https://img.shields.io/github/stars/EECS3311F25/StockEasy?style=social)](https://github.com/EECS3311F25/StockEasy)
-[![GitHub Forks](https://img.shields.io/github/forks/EECS3311F25/StockEasy?style=social)](https://github.com/EECS3311F25/StockEasy)
-[![GitHub Issues](https://img.shields.io/github/issues/EECS3311F25/StockEasy)](https://github.com/EECS3311F25/StockEasy/issues)
-
-[🔝 Back to top](#-stockeasy---stock-trading-simulator)
 
 </div>
