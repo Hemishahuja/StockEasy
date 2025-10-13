@@ -17,7 +17,8 @@
 ---
 
 
-##  Features
+##  Features and motivation 
+StockEasy is a learning tool for practicing stock trading without real money. It simulates live-like prices, lets you buy/sell, track your portfolio, and review your decisions. The goal is to help students learn concepts such as orders, P/L, risk, and watchlists in a safe, classroom-friendly app. It’s built with Spring Boot so it’s easy to run locally and deploy for demos.
 
 ###  Core Trading Features
 - Real-time Stock Tracking - Monitor stock prices with market data
