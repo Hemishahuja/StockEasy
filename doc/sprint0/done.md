@@ -1,0 +1,1 @@
+Done means the program runs end-to-end without errors and each user story’s acceptance criteria are met. The main use cases and all edge cases we can anticipate are implemented, tested, and handled. Code is reviewed and merged with updated documentation, with no known critical defects remaining.
