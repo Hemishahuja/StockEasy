@@ -19,44 +19,44 @@
 
 ## 📋 Table of Contents
 
-- [✨ Features](#-features)
-- [🏗️ Architecture](#-architecture)
-- [🚀 Quick Start](#-quick-start)
-- [🔧 Configuration](#-configuration)
-- [📚 API Documentation](#-api-documentation)
-- [🧪 Testing](#-testing)
-- [🐳 Docker Support](#-docker-support)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+- [ Features](#-features)
+- [ Architecture](#-architecture)
+- [ Quick Start](#-quick-start)
+- [ Configuration](#-configuration)
+- [ API Documentation](#-api-documentation)
+- [ Testing](#-testing)
+- [ Docker Support](#-docker-support)
+- [ Contributing](#-contributing)
+- [ License](#-license)
 
 ---
 
 ## ✨ Features
 
-### 🏦 Core Trading Features
-- **📈 Real-time Stock Tracking** - Monitor stock prices with market data
-- **💼 Portfolio Management** - Track holdings, performance, and profit/loss
-- **📊 Transaction History** - Complete buy/sell transaction logging
-- **🔍 Watchlists** - Create and monitor custom stock watchlists
-- **👤 User Management** - Secure authentication and user profiles
+###  Core Trading Features
+- ** Real-time Stock Tracking** - Monitor stock prices with market data
+- ** Portfolio Management** - Track holdings, performance, and profit/loss
+- ** Transaction History** - Complete buy/sell transaction logging
+- ** Watchlists** - Create and monitor custom stock watchlists
+- ** User Management** - Secure authentication and user profiles
 
-### 🛡️ Security & Reliability
-- **🔐 Spring Security** - JWT-based authentication and authorization
-- **🛡️ Input Validation** - Comprehensive validation using Bean Validation
-- **📝 Actuator Endpoints** - Health monitoring and metrics
-- **🧼 Code Quality** - Spotless code formatting with Google Java Style
+###  Security & Reliability
+- ** Spring Security** - JWT-based authentication and authorization
+- ** Input Validation** - Comprehensive validation using Bean Validation
+- ** Actuator Endpoints** - Health monitoring and metrics
+- ** Code Quality** - Spotless code formatting with Google Java Style
 
-### 🎨 User Experience
-- **🎯 Responsive UI** - Bootstrap-powered responsive web interface
-- **📱 Mobile-Friendly** - Optimized for all device sizes
-- **🔄 Real-time Updates** - Dynamic price updates and portfolio calculations
-- **🎨 Modern Design** - Clean, intuitive user interface
+###  User Experience
+- ** Responsive UI** - Bootstrap-powered responsive web interface
+- ** Mobile-Friendly** - Optimized for all device sizes
+- ** Real-time Updates** - Dynamic price updates and portfolio calculations
+- ** Modern Design** - Clean, intuitive user interface
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
-### 📁 Project Structure
+###  Project Structure
 ```
 src/
 ├── main/
@@ -73,7 +73,7 @@ src/
     └── java/com/example/stockeasy/
 ```
 
-### 🧩 Technology Stack
+###  Technology Stack
 | Component | Technology | Purpose |
 |-----------|------------|---------|
 | **Backend** | Spring Boot 3.3.0 | Application framework |
@@ -87,15 +87,15 @@ src/
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
-### 📋 Prerequisites
+###  Prerequisites
 - **Java 21** (JDK)
 - **Maven 3.9+**
 - **PostgreSQL 14+** (for production)
 - **Git** (for cloning)
 
-### 🔧 Setup Instructions
+###  Setup Instructions
 
 1. **Clone the repository**
    ```bash
@@ -126,9 +126,9 @@ src/
 
 ---
 
-## 🔧 Configuration
+##  Configuration
 
-### 🌍 Environment Profiles
+###  Environment Profiles
 
 The application supports multiple Spring profiles:
 
@@ -138,7 +138,7 @@ The application supports multiple Spring profiles:
 | **test** | Testing configuration | `./mvnw test -Ptest` |
 | **prod** | Production configuration | Default profile |
 
-### ⚙️ Database Configuration
+###  Database Configuration
 
 ```yaml
 # src/main/resources/application.yml
@@ -150,7 +150,7 @@ spring:
     driver-class-name: org.postgresql.Driver
 ```
 
-### 🔐 Security Configuration
+###  Security Configuration
 
 ```yaml
 # JWT and security settings
@@ -163,15 +163,15 @@ spring:
 
 ---
 
-## 📚 API Documentation
+##  API Documentation
 
-### 📖 Swagger UI
+###  Swagger UI
 Access interactive API documentation at:
 ```
 http://localhost:8080/swagger-ui.html
 ```
 
-### 🔗 Key API Endpoints
+###  Key API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -184,7 +184,7 @@ http://localhost:8080/swagger-ui.html
 | `/api/portfolio/sell` | POST | Sell stock |
 | `/api/watchlist` | GET/POST | Watchlist management |
 
-### 📋 Example API Request
+###  Example API Request
 
 ```bash
 curl -X POST "http://localhost:8080/api/auth/login" \
@@ -194,9 +194,9 @@ curl -X POST "http://localhost:8080/api/auth/login" \
 
 ---
 
-## 🧪 Testing
+##  Testing
 
-### 🔄 Running Tests
+###  Running Tests
 ```bash
 # Run all tests
 ./mvnw test
@@ -208,7 +208,7 @@ curl -X POST "http://localhost:8080/api/auth/login" \
 ./mvnw verify
 ```
 
-### 📊 Test Coverage
+###  Test Coverage
 - **Unit Tests**: JUnit 5 + Mockito
 - **Integration Tests**: Spring Boot Test
 - **Security Tests**: Spring Security Test
@@ -216,14 +216,14 @@ curl -X POST "http://localhost:8080/api/auth/login" \
 
 ---
 
-## 🐳 Docker Support
+##  Docker Support
 
-### 📦 Build Docker Image
+###  Build Docker Image
 ```bash
 docker build -t stock-easy:latest .
 ```
 
-### 🚀 Run Docker Container
+###  Run Docker Container
 ```bash
 docker run -p 8080:8080 \
   -e SPRING_PROFILES_ACTIVE=prod \
@@ -231,7 +231,7 @@ docker run -p 8080:8080 \
   stock-easy:latest
 ```
 
-### 🐳 Docker Compose
+###  Docker Compose
 ```yaml
 # docker-compose.yml
 version: '3.8'
@@ -263,11 +263,11 @@ docker-compose up -d
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions! Here's how you can help:
 
-### 🚀 Development Workflow
+###  Development Workflow
 
 1. **Fork the repository**
 2. **Create a feature branch**
@@ -295,7 +295,7 @@ We welcome contributions! Here's how you can help:
 - **Commit Messages**: Conventional Commits
 - **Documentation**: JSDoc for public APIs
 
-### 🧪 Pull Request Checklist
+###  Pull Request Checklist
 
 - [ ] Tests are added/updated
 - [ ] Code follows style guidelines
@@ -305,21 +305,21 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### 📋 License Summary
+###  License Summary
 
-- **Commercial use**: ✅ Permitted
-- **Modification**: ✅ Permitted
-- **Distribution**: ✅ Permitted
-- **Private use**: ✅ Permitted
+- **Commercial use**:  Permitted
+- **Modification**:  Permitted
+- **Distribution**:  Permitted
+- **Private use**:  Permitted
 - **License and copyright notice**: Must be included
 
 ---
 
-## 🌟 Acknowledgments
+##  Acknowledgments
 
 - **Spring Team** - For the amazing Spring Boot framework
 - **Bootstrap Team** - For the responsive UI framework
