@@ -202,7 +202,40 @@ curl -X POST "http://localhost:8080/api/auth/login" \
 - **Database Tests**: H2 in-memory database
 
 
+Contribution
 
+We welcome small, focused PRs.
+
+How to contribute
+
+Fork & branch: feat/<short-name> or fix/<short-name>.
+
+Run tests: ./mvnw test (keep coverage for changed code).
+
+Format: code is auto-formatted (Spotless/Google Java Style). Run ./mvnw spotless:apply.
+
+Commit messages: short and actionable (e.g., feat: add buy/sell endpoints).
+
+Open a PR describing:
+
+What changed and why
+
+How to test (steps or sample curl)
+
+Any screenshots for UI changes
+
+Issue labels
+
+good first issue – starter tasks
+
+bug – defects
+
+enhancement – new features
+
+documentation – README/docs fixes
+
+Code of Conduct
+Be respectful and constructive. Assume good intent, keep reviews kind and specific.
 <div align="center">
 
 
