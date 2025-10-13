@@ -17,40 +17,27 @@
 
 ---
 
-##  Table of Contents
-
-- [ Features](#-features)
-- [ Architecture](#-architecture)
-- [ Quick Start](#-quick-start)
-- [ Configuration](#-configuration)
-- [ API Documentation](#-api-documentation)
-- [ Testing](#-testing)
-- [ Docker Support](#-docker-support)
-- [ Contributing](#-contributing)
-- [ License](#-license)
-
----
 
 ##  Features
 
 ###  Core Trading Features
-- ** Real-time Stock Tracking** - Monitor stock prices with market data
-- ** Portfolio Management** - Track holdings, performance, and profit/loss
-- ** Transaction History** - Complete buy/sell transaction logging
-- ** Watchlists** - Create and monitor custom stock watchlists
-- ** User Management** - Secure authentication and user profiles
+- Real-time Stock Tracking - Monitor stock prices with market data
+- Portfolio Management- Track holdings, performance, and profit/loss
+- Transaction History- Complete buy/sell transaction logging
+- Watchlists- Create and monitor custom stock watchlists
+- User Management- Secure authentication and user profiles
 
 ###  Security & Reliability
-- ** Spring Security** - JWT-based authentication and authorization
-- ** Input Validation** - Comprehensive validation using Bean Validation
-- ** Actuator Endpoints** - Health monitoring and metrics
-- ** Code Quality** - Spotless code formatting with Google Java Style
+- Spring Security- JWT-based authentication and authorization
+- Input Validation- Comprehensive validation using Bean Validation
+- Actuator Endpoints - Health monitoring and metrics
+- Code Quality - Spotless code formatting with Google Java Style
 
 ###  User Experience
-- ** Responsive UI** - Bootstrap-powered responsive web interface
-- ** Mobile-Friendly** - Optimized for all device sizes
-- ** Real-time Updates** - Dynamic price updates and portfolio calculations
-- ** Modern Design** - Clean, intuitive user interface
+-  Responsive UI- Bootstrap-powered responsive web interface
+- Mobile-Friendly - Optimized for all device sizes
+- Real-time Updates - Dynamic price updates and portfolio calculations
+- Modern Design - Clean, intuitive user interface
 
 ---
 
