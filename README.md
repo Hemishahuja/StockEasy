@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 StockEasy - Stock Trading Simulator
+#  StockEasy - Stock Trading Simulator
 
  **A modern, feature-rich stock trading simulator built with Spring Boot**
 
@@ -17,7 +17,7 @@
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 - [ Features](#-features)
 - [ Architecture](#-architecture)
@@ -31,7 +31,7 @@
 
 ---
 
-## ✨ Features
+##  Features
 
 ###  Core Trading Features
 - ** Real-time Stock Tracking** - Monitor stock prices with market data
