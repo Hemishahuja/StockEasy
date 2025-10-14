@@ -181,19 +181,7 @@ curl -X POST "http://localhost:8080/api/auth/login" \
 
 ---
 
-##  Testing
 
-###  Running Tests
-```bash
-# Run all tests
-./mvnw test
-
-# Run tests with specific profile
-./mvnw test -Ptest
-
-# Run integration tests
-./mvnw verify
-```
 
 ###  Test Coverage
 - **Unit Tests**: JUnit 5 + Mockito
