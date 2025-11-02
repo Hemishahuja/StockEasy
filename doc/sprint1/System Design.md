@@ -139,7 +139,7 @@
 # 3) Architecture
 
 At a high level, the app uses a layered MVC design. Controllers translate HTTP requests into service calls and then return a view (Thymeleaf) or JSON. Services hold the business rules (buy/sell logic, portfolio valuation, watchlists) and act as the gateway to data. Repositories handle persistence via Spring Data JPA. Domain entities (User, Portfolio, Stock, Transaction, Watchlist, MarketData) define the key data structures that capture the core concepts of the application.
-![[./component.png]]
+![Component diagram](./component.png)
 
 
 # 4) System Decomposition
