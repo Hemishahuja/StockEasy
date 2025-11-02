@@ -1,10 +1,10 @@
 # Table of Contents
 
-1. CRC Cards (High-level class responsibilities & collaborators)
-2. Environment & Assumptions
+1. CRC Cards
+2. Environment and Assumptions
 3. Architecture (Overview + Diagram)
 4. System Decomposition (Class/Package mapping)
-5. Error & Exception Strategy
+5. Error and Exception Strategy
 
 
 # 1) CRC Cards
@@ -98,10 +98,10 @@
 
 ---
 
-# 2) Environment & Assumptions (Interaction with the environment)
+# 2) Environment and Assumptions (Interaction with the environment)
 
 
-## Runtime & Tooling
+## Runtime and Tooling
 - **Java (JDK):** 21
 - **Build:** Maven 3.9+
 - **Spring Boot:** 3.3.0
@@ -115,19 +115,19 @@
 - **Tests / quick local runs:** H2 (in-memory or file) under the `test` profile for fast feedback.
 - **Schema migrations:** none yet (no Flyway/Liquibase in Sprint 1).
 
-## Spring Profiles & Config
+## Spring Profiles and Config
 - **Profiles:**
     - `dev` → PostgreSQL 14+
     - `test` → H2
 - **Activation:** `SPRING_PROFILES_ACTIVE=dev|test` or `-Dspring-boot.run.profiles=dev|test`.
 - **Secrets/config:** supplied via environment variables or untracked local config; keep credentials out of VCS.
 
-## OS & Tooling Assumptions
+## OS and Tooling Assumptions
 - **OS:** Windows/macOS/Linux (developer choice).
 - **Containerization:** PostgreSQL may be run natively or via Docker (not determined); both approaches acceptable.
 - **Frontend:** Server-rendered Thymeleaf; Node/npm not required in Sprint 1.
 
-## Web & Network
+## Web and Network
 - **Inbound:** HTTP on `localhost:8080`.
 - **Outbound:** No external services required in Sprint 1; market-data integration is not determined yet (stub/cached values acceptable for this sprint).
 - **CORS/CSRF:** Spring Security defaults.
@@ -148,7 +148,28 @@ At a high level, the app uses a layered MVC design. Controllers translate HTTP r
 - `com.example.stockeasy.web` → Controllers (serve views/JSON; thin)
 - `com.example.stockeasy.service` → Business logic (`MarketDataService`, `PortfolioService`, `StockService`, `TransactionService`, `UserService`, `WatchlistService`)
 - `com.example.stockeasy.repo` → Repositories (`*Repository`) with derived queries and targeted JPQL
-- `com.example.stockeasy.domain` → Entities & relationships (`User`, `Stock`, `Portfolio`, `Transaction` (+ buy/sell), `Watchlist`, `MarketData`)  
+- `com.example.stockeasy.domain` → Entities and relationships (`User`, `Stock`, `Portfolio`, `Transaction` (+ buy/sell), `Watchlist`, `MarketData`)  
 ### Notable mappings/examples
 - `PortfolioController` → `PortfolioService` (+ `UserService`, `StockService`)
 - `TransactionService` → `TransactionRepository`, `UserRepository`, `StockRepository`, `PortfolioRepository` (+ `PortfolioService`)
+
+# 5) Errors and Exception Strategy
+
+
+We handle errors in three places. 
+- First, in the controllers we validate inputs (Bean Validation) and show clear messages in the form or JSON. 
+- Second, the services check business rules and throw small custom exceptions with messages the user can act on. 
+- Lastly, if the database or the market-data service has issues, the app doesn’t crash. We either show cached data or a basic error page and keep things running. Our APIs return the same JSON fields for errors, we add a request ID to logs to trace problems, and any failed write is rolled back so we don’t leave half-saved data.
+
+### Anticipated cases and response:
+
+|Scenario|Where detected|Response to user|Retry / Fallback|
+|---|---|---|---|
+|Invalid input (missing/invalid fields)|Controller / Bean Validation|**400**; re-render form with field errors, or JSON `{status, error, message, fieldErrors}`|No retry; user fixes input|
+|Authentication failure|Auth layer / UserService|**401**; redirect to login with message; JSON error envelope|No retry; optional lockout after repeats|
+|Authorization denied|Security filter / Controller|**403**; access-denied page or JSON error|No retry|
+|Resource not found (User/Stock/Portfolio/Watchlist)|Service / Repository|**404**; not-found page or JSON with hint|No retry|
+|Business rule violation (e.g., selling more than owned, not enough funds)|Service|**409** or **422**; show actionable message (available qty/balance)|No retry; user adjusts request|
+|Database error (connectivity/timeout, constraint)|Repository / JPA|**503** (connectivity) with `Retry-After`, or **409** (constraint)|Small automatic retry for timeouts; otherwise try again later|
+|External market-data failure/timeout|MarketDataService|**200** with cached “last known” data and a “data delayed” banner; APIs set `stale=true`|Short retry with backoff; fall back to cache|
+
