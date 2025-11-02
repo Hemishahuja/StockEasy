@@ -1,14 +1,19 @@
 package com.example.stockeasy.service;
 
-import com.example.stockeasy.domain.Portfolio;
-import com.example.stockeasy.repo.PortfolioRepository;
-import com.example.stockeasy.repo.StockRepository;
-import com.example.stockeasy.repo.UserRepository;
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.List;
+import com.example.stockeasy.domain.Portfolio;
+import com.example.stockeasy.domain.Stock;
+import com.example.stockeasy.domain.User;
+import com.example.stockeasy.exception.ResourceNotFoundException;
+import com.example.stockeasy.repo.PortfolioRepository;
+import com.example.stockeasy.repo.StockRepository;
+import com.example.stockeasy.repo.UserRepository;
+import com.example.stockeasy.util.ValidationUtils;
 
 /**
  * PortfolioService for portfolio management operations.
@@ -27,13 +32,19 @@ public class PortfolioService {
     private UserRepository userRepository;
     
     public Portfolio addToPortfolio(Long userId, Long stockId, Integer quantity) {
-        Portfolio portfolio = new Portfolio();
-        portfolio.setUser(userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found")));
-        portfolio.setStock(stockRepository.findById(stockId)
-                .orElseThrow(() -> new RuntimeException("Stock not found")));
-        portfolio.setQuantity(quantity);
-        
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Stock stock = stockRepository.findById(stockId)
+                .orElseThrow(() -> new ResourceNotFoundException("Stock not found"));
+
+        // Validate inputs
+        ValidationUtils.validateUser(user);
+        ValidationUtils.validateStock(stock);
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+
+        Portfolio portfolio = new Portfolio(user, stock, quantity);
         return portfolioRepository.save(portfolio);
     }
     

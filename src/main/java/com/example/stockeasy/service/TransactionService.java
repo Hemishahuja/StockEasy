@@ -1,13 +1,24 @@
 package com.example.stockeasy.service;
 
-import com.example.stockeasy.domain.*;
-import com.example.stockeasy.repo.*;
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
+import com.example.stockeasy.domain.BuyTransaction;
+import com.example.stockeasy.domain.Portfolio;
+import com.example.stockeasy.domain.SellTransaction;
+import com.example.stockeasy.domain.Stock;
+import com.example.stockeasy.domain.Transaction;
+import com.example.stockeasy.domain.User;
+import com.example.stockeasy.exception.ResourceNotFoundException;
+import com.example.stockeasy.repo.PortfolioRepository;
+import com.example.stockeasy.repo.StockRepository;
+import com.example.stockeasy.repo.TransactionRepository;
+import com.example.stockeasy.repo.UserRepository;
+import com.example.stockeasy.util.ValidationUtils;
 
 /**
  * TransactionService for transaction management operations.
@@ -31,56 +42,55 @@ public class TransactionService {
     @Autowired
     private PortfolioService portfolioService;
     
+    @Transactional
     public Transaction buyStock(Long userId, Long stockId, Integer quantity) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Stock stock = stockRepository.findById(stockId)
-                .orElseThrow(() -> new RuntimeException("Stock not found"));
-        
-        // Check if user has sufficient funds
-        BigDecimal totalCost = stock.getCurrentPrice().multiply(new BigDecimal(quantity));
-        if (user.getCashBalance().compareTo(totalCost) < 0) {
-            throw new RuntimeException("Insufficient funds");
-        }
-        
+                .orElseThrow(() -> new ResourceNotFoundException("Stock not found"));
+
+        // Validate the buy transaction
+        ValidationUtils.validateBuyTransaction(user, stock, quantity);
+
         // Create buy transaction
         BuyTransaction buyTransaction = new BuyTransaction(user, stock, quantity, stock.getCurrentPrice());
-        
+
         // Update user's cash balance
+        BigDecimal totalCost = stock.getCurrentPrice().multiply(new BigDecimal(quantity));
         user.withdrawCash(totalCost);
-        
+
         // Add stock to user's portfolio
         Portfolio portfolio = portfolioService.addToPortfolio(userId, stockId, quantity);
-        
+
         // Save transaction and update user
         Transaction transaction = transactionRepository.save(buyTransaction);
         userRepository.save(user);
         portfolioRepository.save(portfolio);
-        
+
         return transaction;
     }
     
+    @Transactional
     public Transaction sellStock(Long userId, Long stockId, Integer quantity) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Stock stock = stockRepository.findById(stockId)
-                .orElseThrow(() -> new RuntimeException("Stock not found"));
-        
-        // Check if user has sufficient shares
+                .orElseThrow(() -> new ResourceNotFoundException("Stock not found"));
+
+        // Get user's portfolio for this stock
         Portfolio portfolio = portfolioRepository.findByUserIdAndStockId(userId, stockId).stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Insufficient shares"));
-        
-        if (portfolio.getQuantity() < quantity) {
-            throw new RuntimeException("Insufficient shares");
-        }
-        
+                .orElseThrow(() -> new ResourceNotFoundException("No portfolio entry found for this stock"));
+
+        // Validate the sell transaction
+        ValidationUtils.validateSellTransaction(user, portfolio, quantity);
+
         // Create sell transaction
         SellTransaction sellTransaction = new SellTransaction(user, stock, quantity, stock.getCurrentPrice());
-        
+
         // Update user's cash balance
         user.depositCash(sellTransaction.getCashAdded());
-        
+
         // Update portfolio quantity
         portfolio.setQuantity(portfolio.getQuantity() - quantity);
         if (portfolio.getQuantity() > 0) {
@@ -88,11 +98,11 @@ public class TransactionService {
         } else {
             portfolioRepository.deleteById(portfolio.getId());
         }
-        
+
         // Save transaction and update user
         Transaction transaction = transactionRepository.save(sellTransaction);
         userRepository.save(user);
-        
+
         return transaction;
     }
     

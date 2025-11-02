@@ -83,10 +83,12 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/stock_easy_dev
+    url: jdbc:h2:mem:stock_easy_dev
+    driver-class-name: org.h2.Driver
   jpa:
     hibernate:
       ddl-auto: create-drop
+      dialect: org.hibernate.dialect.H2Dialect
     show-sql: true
   thymeleaf:
     cache: false

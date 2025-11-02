@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.stockeasy.domain.Portfolio;
+import com.example.stockeasy.domain.Transaction;
 import com.example.stockeasy.domain.User;
 import com.example.stockeasy.service.PortfolioService;
 import com.example.stockeasy.service.StockService;
+import com.example.stockeasy.service.TransactionService;
 import com.example.stockeasy.service.UserService;
 
 /**
@@ -26,12 +28,15 @@ public class PortfolioController {
     
     @Autowired
     private PortfolioService portfolioService;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private StockService stockService;
+
+    @Autowired
+    private TransactionService transactionService;
     
     /**
      * Display user's portfolio dashboard
@@ -68,29 +73,27 @@ public class PortfolioController {
     @PostMapping("/buy")
     public String buyStock(@RequestParam Long userId, @RequestParam Long stockId, @RequestParam Integer quantity, Model model) {
         try {
-            // This would normally call the transaction service
-            // For demo, we'll simulate the operation
-            model.addAttribute("message", "Buy order placed successfully!");
+            Transaction transaction = transactionService.buyStock(userId, stockId, quantity);
+            model.addAttribute("message", "Buy order executed successfully! Transaction ID: " + transaction.getId());
             return "redirect:/portfolio/dashboard";
         } catch (Exception e) {
-            model.addAttribute("error", "Failed to place buy order: " + e.getMessage());
-            return "portfolio/error";
+            model.addAttribute("error", "Failed to execute buy order: " + e.getMessage());
+            return "redirect:/portfolio/dashboard";
         }
     }
-    
+
     /**
      * Execute sell stock transaction
      */
     @PostMapping("/sell")
     public String sellStock(@RequestParam Long userId, @RequestParam Long stockId, @RequestParam Integer quantity, Model model) {
         try {
-            // This would normally call the transaction service
-            // For demo, we'll simulate the operation
-            model.addAttribute("message", "Sell order placed successfully!");
+            Transaction transaction = transactionService.sellStock(userId, stockId, quantity);
+            model.addAttribute("message", "Sell order executed successfully! Transaction ID: " + transaction.getId());
             return "redirect:/portfolio/dashboard";
         } catch (Exception e) {
-            model.addAttribute("error", "Failed to place sell order: " + e.getMessage());
-            return "portfolio/error";
+            model.addAttribute("error", "Failed to execute sell order: " + e.getMessage());
+            return "redirect:/portfolio/dashboard";
         }
     }
     

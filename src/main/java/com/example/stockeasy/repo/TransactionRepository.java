@@ -1,13 +1,13 @@
 package com.example.stockeasy.repo;
 
-import com.example.stockeasy.domain.Transaction;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import com.example.stockeasy.domain.Transaction;
 
 /**
  * TransactionRepository interface for Transaction entity persistence operations.
@@ -35,13 +35,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     /**
      * Get user's buy transactions
      */
-    @Query("SELECT t FROM Transaction t WHERE t INSTANCEOF BuyTransaction AND t.user.id = :userId ORDER BY t.executedAt DESC")
+    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = BuyTransaction AND t.user.id = :userId ORDER BY t.executedAt DESC")
     List<Transaction> findUserBuyTransactions(Long userId);
-    
+
     /**
      * Get user's sell transactions
      */
-    @Query("SELECT t FROM Transaction t WHERE t INSTANCEOF SellTransaction AND t.user.id = :userId ORDER BY t.executedAt DESC")
+    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = SellTransaction AND t.user.id = :userId ORDER BY t.executedAt DESC")
     List<Transaction> findUserSellTransactions(Long userId);
     
     /**
