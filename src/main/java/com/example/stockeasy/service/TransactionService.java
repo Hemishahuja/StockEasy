@@ -94,6 +94,7 @@ public class TransactionService {
         // Update portfolio quantity
         portfolio.setQuantity(portfolio.getQuantity() - quantity);
         if (portfolio.getQuantity() > 0) {
+            portfolio.updateCurrentValue(); // Update current value after quantity change
             portfolioRepository.save(portfolio);
         } else {
             portfolioRepository.deleteById(portfolio.getId());

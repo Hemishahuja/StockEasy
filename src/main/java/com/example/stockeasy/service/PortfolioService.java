@@ -44,7 +44,20 @@ public class PortfolioService {
             throw new IllegalArgumentException("Quantity must be positive");
         }
 
-        Portfolio portfolio = new Portfolio(user, stock, quantity);
+        // Check if user already has this stock in portfolio
+        List<Portfolio> existingPortfolios = portfolioRepository.findByUserIdAndStockId(userId, stockId);
+
+        Portfolio portfolio;
+        if (!existingPortfolios.isEmpty()) {
+            // Update existing portfolio
+            portfolio = existingPortfolios.get(0);
+            portfolio.addShares(quantity);
+        } else {
+            // Create new portfolio entry
+            portfolio = new Portfolio(user, stock, quantity);
+            portfolio.updateCurrentValue(); // Calculate current value
+        }
+
         return portfolioRepository.save(portfolio);
     }
     
@@ -53,7 +66,14 @@ public class PortfolioService {
     }
     
     public List<Portfolio> getUserPortfolio(Long userId) {
-        return portfolioRepository.findUserPortfolioWithStockInfo(userId);
+        List<Portfolio> portfolios = portfolioRepository.findUserPortfolioWithStockInfo(userId);
+
+        // Update current values for all portfolios to ensure they're up to date
+        portfolios.forEach(Portfolio::updateCurrentValue);
+        // Save updated portfolios to persist current values
+        portfolios.forEach(portfolioRepository::save);
+
+        return portfolios;
     }
     
     public List<Portfolio> getUserPortfolioWithProfitLossAnalysis(Long userId) {

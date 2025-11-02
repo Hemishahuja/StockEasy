@@ -95,6 +95,17 @@
     </div>
 
     <div class="container">
+        <!-- Error Alert -->
+        <div th:if="${error}" class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        </div>
+
         <!-- Market Overview -->
         <div class="row mb-4">
             <div class="col-12">
@@ -174,28 +185,28 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Recent Stocks</h5>
+                        <h5 class="card-title mb-0">Recent Activity</h5>
                     </div>
                     <div class="card-body">
-                        <div th:if="${#lists.isEmpty(activeStocks)}">
-                            <p class="text-muted">No stocks available</p>
+                        <div th:if="${#lists.isEmpty(recentTransactions)}">
+                            <p class="text-muted">No recent transactions</p>
                         </div>
-                        <div th:if="${not #lists.isEmpty(activeStocks)}">
+                        <div th:if="${not #lists.isEmpty(recentTransactions)}">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between align-items-center" th:each="stock : ${activeStocks}">
+                                <li class="list-group-item d-flex justify-content-between align-items-center" th:each="transaction : ${recentTransactions}">
                                     <div>
-                                        <strong th:text="${stock?.symbol}"></strong>
+                                        <div class="d-flex align-items-center">
+                                            <span th:if="${transaction.class.name == 'com.example.stockeasy.domain.BuyTransaction'}" class="badge bg-success me-2">BUY</span>
+                                            <span th:if="${transaction.class.name == 'com.example.stockeasy.domain.SellTransaction'}" class="badge bg-danger me-2">SELL</span>
+                                            <strong th:text="${transaction?.stock?.symbol}"></strong>
+                                        </div>
+                                        <small class="text-muted" th:text="${transaction?.stock?.companyName}"></small>
                                         <br>
-                                        <small class="text-muted" th:text="${stock?.companyName}"></small>
+                                        <small class="text-muted" th:text="${#temporals.format(transaction?.createdAt, 'MMM dd, HH:mm')}"></small>
                                     </div>
                                     <div class="text-end">
-                                        <div th:text="'$' + ${stock?.currentPrice != null ? #numbers.formatDecimal(stock.currentPrice, 1, 2) : '0.00'}"></div>
-                                        <small class="stock-up" th:if="${stock?.isPriceUp()}">
-                                            <i class="fas fa-arrow-up"></i> <span th:text="${stock?.getPriceChangePercent() != null ? #numbers.formatDecimal(stock.priceChangePercent, 1, 2) + '%' : ''}"></span>
-                                        </small>
-                                        <small class="stock-down" th:if="${stock?.isPriceDown()}">
-                                            <i class="fas fa-arrow-down"></i> <span th:text="${stock?.getPriceChangePercent() != null ? #numbers.formatDecimal(stock.priceChangePercent, 1, 2) + '%' : ''}"></span>
-                                        </small>
+                                        <div th:text="${transaction?.quantity} + ' shares @ $' + ${transaction?.pricePerShare != null ? #numbers.formatDecimal(transaction.pricePerShare, 1, 2) : '0.00'}"></div>
+                                        <small class="fw-bold" th:text="'$' + ${transaction?.totalAmount != null ? #numbers.formatDecimal(transaction.totalAmount, 1, 2) : '0.00'}"></small>
                                     </div>
                                 </li>
                             </ul>
@@ -206,7 +217,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Quick Stats</h5>
+                        <h5 class="card-title mb-0">Portfolio Summary</h5>
                     </div>
                     <div class="card-body">
                         <div class="row text-center">
@@ -215,8 +226,18 @@
                                 <h4 class="text-success" th:text="'$' + ${user?.cashBalance != null ? #numbers.formatDecimal(user.cashBalance, 1, 2) : '0.00'}"></h4>
                             </div>
                             <div class="col-6 mb-3">
-                                <h6 class="text-muted">Stocks Tracked</h6>
-                                <h4 class="text-primary" th:text="${activeStocks?.size() ?: 0}"></h4>
+                                <h6 class="text-muted">Portfolio Value</h6>
+                                <h4 class="text-primary" th:text="'$' + ${totalPortfolioValue != null ? #numbers.formatDecimal(totalPortfolioValue, 1, 2) : '0.00'}"></h4>
+                            </div>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <h6 class="text-muted">Holdings</h6>
+                                <h4 class="text-info" th:text="${userPortfolio?.size() ?: 0}"></h4>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <h6 class="text-muted">Total Assets</h6>
+                                <h4 class="text-warning" th:text="'$' + ${(user?.cashBalance != null && totalPortfolioValue != null) ? #numbers.formatDecimal(user.cashBalance.add(totalPortfolioValue), 1, 2) : '$0.00'}"></h4>
                             </div>
                         </div>
                         <hr>
