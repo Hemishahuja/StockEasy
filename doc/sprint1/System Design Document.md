@@ -20,9 +20,9 @@
 
 # Table of Contents
 
-1. CRC Cards
-2. Environment and Assumptions
-3. Architecture (Overview + Diagram)
-4. System Decomposition (Class/Package mapping)
-5. Error and Exception Strategy
+
+1. Environment and Assumptions
+2. Architecture (Overview + Diagram)
+3. System Decomposition (Class/Package mapping)
+4. Error and Exception Strategy
 
