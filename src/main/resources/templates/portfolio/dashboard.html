@@ -33,6 +33,15 @@
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
+        .navbar-brand {
+            font-weight: bold;
+            color: #007bff !important;
+            transition: all 0.3s ease;
+        }
+        .navbar-brand:hover {
+            color: #0056b3 !important;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -48,13 +57,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Dashboard</a>
+                        <a class="nav-link active" href="/portfolio/dashboard">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/stocks">Stocks</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/portfolio/dashboard">Portfolio</a>
+                        <a class="nav-link" href="/portfolio/dashboard">Portfolio</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/watchlist">Watchlist</a>
@@ -66,7 +75,7 @@
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user"></i> <span th:text="${user?.firstName ?? 'User'}"></span>
+                            <i class="fas fa-user"></i> <span th:text="${user?.firstName ?: 'User'}"></span>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/users/1">Profile</a></li>
@@ -91,6 +100,7 @@
                     <div class="balance-card p-3">
                         <h5 class="text-muted mb-1">Total Portfolio Value</h5>
                         <h2 class="mb-0 profit" th:text="'$' + ${portfolioValue != null ? #numbers.formatDecimal(portfolioValue, 1, 2) : '0.00'}"></h2>
+                        <small class="text-white-50">Cash: <span th:text="'$' + ${user?.cashBalance != null ? #numbers.formatDecimal(user.cashBalance, 1, 2) : '0.00'}"></span></small>
                     </div>
                 </div>
             </div>
@@ -201,30 +211,38 @@
                     <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Buy Stock</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <form id="buyForm">
+                <form action="/portfolio/buy" method="post" id="buyForm">
+                    <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Stock Symbol</label>
-                            <input type="text" class="form-control" placeholder="e.g., AAPL" required>
+                            <input type="text" class="form-control" id="buyStockSymbol" name="stockSymbol" placeholder="e.g., AAPL" required>
+                            <div class="form-text">Enter a valid stock symbol to lookup current price</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Quantity</label>
-                            <input type="number" class="form-control" min="1" required>
+                            <label class="form-label">Company Name</label>
+                            <input type="text" class="form-control" id="buyCompanyName" readonly>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Current Price</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" id="buyCurrentPrice" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="buyQuantity" name="quantity" min="1" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Total Cost</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" id="buyTotalCost" readonly>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Buy Stock</button>
-                </div>
+                        <div class="alert alert-info">
+                            <small><i class="fas fa-info-circle me-1"></i>Available cash: <span th:text="'$' + ${user?.cashBalance != null ? #numbers.formatDecimal(user.cashBalance, 1, 2) : '0.00'}"></span></small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="buySubmitBtn">Buy Stock</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -237,40 +255,177 @@
                     <h5 class="modal-title"><i class="fas fa-minus-circle me-2"></i>Sell Stock</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <form id="sellForm">
+                <form action="/portfolio/sell" method="post" id="sellForm">
+                    <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Stock Symbol</label>
-                            <select class="form-select" required>
+                            <select class="form-select" id="sellStockSymbol" name="stockSymbol" required>
                                 <option value="">Select stock...</option>
+                                <option th:each="portfolio : ${portfolioItems}" th:value="${portfolio?.stock?.symbol}" th:text="${portfolio?.stock?.symbol} + ' - ' + ${portfolio?.stock?.companyName}"></option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Available Quantity</label>
-                            <input type="number" class="form-control" readonly>
+                            <input type="number" class="form-control" id="sellAvailableQuantity" readonly>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Quantity to Sell</label>
-                            <input type="number" class="form-control" min="1" required>
+                            <input type="number" class="form-control" id="sellQuantity" name="quantity" min="1" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Current Price</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" id="sellCurrentPrice" readonly>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Total Proceeds</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" id="sellTotalProceeds" readonly>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger">Sell Stock</button>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger" id="sellSubmitBtn">Sell Stock</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
+    <!-- Success/Error Messages -->
+    <div th:if="${message}" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+        <div class="toast show" role="alert">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" th:text="${message}"></div>
+        </div>
+    </div>
+
+    <div th:if="${error}" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+        <div class="toast show" role="alert">
+            <div class="toast-header bg-danger text-white">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" th:text="${error}"></div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        // Stock data for lookup
+        const availableStocks = /*[[${simpleAvailableStocks}]]*/ [];
+
+        // Portfolio data for sell modal
+        const portfolioData = /*[[${simplePortfolioItems}]]*/ [];
+
+        // Buy modal functionality
+        document.getElementById('buyStockSymbol').addEventListener('input', function() {
+            const symbol = this.value.toUpperCase().trim();
+            const stock = availableStocks && availableStocks.find(s => s && s.symbol && s.symbol.toUpperCase() === symbol);
+
+            if (stock) {
+                document.getElementById('buyCompanyName').value = stock.companyName || '';
+                document.getElementById('buyCurrentPrice').value = stock.currentPrice ? '$' + Number(stock.currentPrice).toFixed(2) : '';
+                updateBuyTotal();
+            } else {
+                document.getElementById('buyCompanyName').value = '';
+                document.getElementById('buyCurrentPrice').value = '';
+                document.getElementById('buyTotalCost').value = '';
+            }
+        });
+
+        document.getElementById('buyQuantity').addEventListener('input', updateBuyTotal);
+
+        function updateBuyTotal() {
+            const priceText = document.getElementById('buyCurrentPrice').value;
+            const quantity = parseInt(document.getElementById('buyQuantity').value) || 0;
+
+            if (priceText && quantity > 0) {
+                const price = parseFloat(priceText.replace('$', ''));
+                if (!isNaN(price)) {
+                    const total = price * quantity;
+                    document.getElementById('buyTotalCost').value = '$' + total.toFixed(2);
+                }
+            } else {
+                document.getElementById('buyTotalCost').value = '';
+            }
+        }
+
+        // Sell modal functionality
+        document.getElementById('sellStockSymbol').addEventListener('change', function() {
+            const symbol = this.value;
+            const stock = availableStocks && availableStocks.find(s => s && s.symbol === symbol);
+            const portfolioItem = portfolioData && portfolioData.find(p => p && p.stock && p.stock.symbol === symbol);
+
+            if (stock && portfolioItem) {
+                document.getElementById('sellCurrentPrice').value = stock.currentPrice ? '$' + Number(stock.currentPrice).toFixed(2) : '';
+                document.getElementById('sellAvailableQuantity').value = portfolioItem.quantity || 0;
+                document.getElementById('sellQuantity').max = portfolioItem.quantity || 0;
+                updateSellTotal();
+            } else {
+                document.getElementById('sellAvailableQuantity').value = '';
+                document.getElementById('sellCurrentPrice').value = '';
+                document.getElementById('sellTotalProceeds').value = '';
+            }
+        });
+
+        document.getElementById('sellQuantity').addEventListener('input', updateSellTotal);
+
+        function updateSellTotal() {
+            const priceText = document.getElementById('sellCurrentPrice').value;
+            const quantity = parseInt(document.getElementById('sellQuantity').value) || 0;
+
+            if (priceText && quantity > 0) {
+                const price = parseFloat(priceText.replace('$', ''));
+                if (!isNaN(price)) {
+                    const total = price * quantity;
+                    document.getElementById('sellTotalProceeds').value = '$' + total.toFixed(2);
+                }
+            } else {
+                document.getElementById('sellTotalProceeds').value = '';
+            }
+        }
+
+        // Basic form validation - server-side validation will handle the rest
+        document.getElementById('buyForm').addEventListener('submit', function(e) {
+            const symbol = document.getElementById('buyStockSymbol').value.trim();
+            if (!symbol) {
+                e.preventDefault();
+                alert('Please enter a stock symbol.');
+                return;
+            }
+
+            const stock = availableStocks.find(s => s.symbol && s.symbol.toUpperCase() === symbol.toUpperCase());
+            if (!stock) {
+                e.preventDefault();
+                alert('Please enter a valid stock symbol from the available stocks.');
+                return;
+            }
+        });
+
+        document.getElementById('sellForm').addEventListener('submit', function(e) {
+            const symbol = document.getElementById('sellStockSymbol').value;
+            if (!symbol) {
+                e.preventDefault();
+                alert('Please select a stock to sell.');
+                return;
+            }
+        });
+
+        // Auto-hide toasts after 5 seconds
+        setTimeout(function() {
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach(toast => {
+                toast.classList.remove('show');
+            });
+        }, 5000);
+
+        // Debug logging
+        console.log('Available stocks loaded:', availableStocks.length);
+        console.log('Portfolio items loaded:', portfolioData.length);
+    </script>
 </body>
 </html>

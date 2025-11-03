@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockEasy - Transaction History</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .history-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+        }
+        .transaction-buy {
+            border-left: 4px solid #28a745;
+        }
+        .transaction-sell {
+            border-left: 4px solid #dc3545;
+        }
+        .transaction-card {
+            transition: transform 0.2s;
+        }
+        .transaction-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .buy-badge {
+            background-color: #28a745;
+        }
+        .sell-badge {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/portfolio/dashboard">
+                <i class="fas fa-chart-line"></i> StockEasy
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/portfolio/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/stocks">Stocks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/portfolio/dashboard">Portfolio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/watchlist">Watchlist</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/market">Market</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> <span th:text="${user?.firstName ?: 'User'}"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/users/1">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- History Header -->
+    <div class="history-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-history me-2"></i>Transaction History</h1>
+                    <p class="mb-0">View all your trading activity and transaction details</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="bg-white bg-opacity-20 p-3 rounded">
+                        <h5 class="mb-1">Total Transactions</h5>
+                        <h2 class="mb-0" th:text="${transactionHistory?.size() ?: 0}"></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Error Alert -->
+        <div th:if="${error}" class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="row">
+            <div class="col-12">
+                <div th:if="${#lists.isEmpty(transactionHistory)}">
+                    <div class="text-center py-5">
+                        <i class="fas fa-receipt fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Transactions Yet</h4>
+                        <p class="text-muted">Your transaction history will appear here once you start trading.</p>
+                        <a href="/portfolio/dashboard" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-2"></i>Start Trading
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${not #lists.isEmpty(transactionHistory)}">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h3>Transaction History</h3>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="filter" id="all" autocomplete="off" checked>
+                                <label class="btn btn-outline-secondary btn-sm" for="all">All</label>
+
+                                <input type="radio" class="btn-check" name="filter" id="buy" autocomplete="off">
+                                <label class="btn btn-outline-success btn-sm" for="buy">Buy</label>
+
+                                <input type="radio" class="btn-check" name="filter" id="sell" autocomplete="off">
+                                <label class="btn btn-outline-danger btn-sm" for="sell">Sell</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Type</th>
+                                    <th>Stock</th>
+                                    <th>Symbol</th>
+                                    <th>Quantity</th>
+                                    <th>Price per Share</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="transaction : ${transactionHistory}"
+                                    th:class="${transaction.isBuy() ? 'table-success' : 'table-danger'}">
+                                    <td>
+                                        <div>
+                                            <strong th:text="${#temporals.format(transaction?.createdAt, 'MMM dd, yyyy')}"></strong>
+                                            <br>
+                                            <small class="text-muted" th:text="${#temporals.format(transaction?.createdAt, 'HH:mm:ss')}"></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span th:if="${transaction.isBuy()}"
+                                              class="badge buy-badge">BUY</span>
+                                        <span th:if="${transaction.isSell()}"
+                                              class="badge sell-badge">SELL</span>
+                                    </td>
+                                    <td th:text="${transaction?.stock?.companyName}"></td>
+                                    <td>
+                                        <span class="badge bg-primary" th:text="${transaction?.stock?.symbol}"></span>
+                                    </td>
+                                    <td th:text="${transaction?.quantity}"></td>
+                                    <td th:text="'$' + ${transaction?.price != null ? #numbers.formatDecimal(transaction.price, 1, 2) : '0.00'}"></td>
+                                    <td>
+                                        <strong th:text="'$' + ${transaction?.totalAmount != null ? #numbers.formatDecimal(transaction.totalAmount, 1, 2) : '0.00'}"></strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">Completed</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Transaction Summary Cards -->
+                    <div class="row mt-4">
+                        <div class="col-md-4 mb-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success">
+                                        <i class="fas fa-arrow-up me-2"></i>Buy Orders
+                                    </h5>
+                                    <h3 class="text-success" th:text="${transactionHistory.stream().filter(t -> t.isBuy()).count()}"></h3>
+                                    <p class="card-text">Total buy transactions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-danger">
+                                        <i class="fas fa-arrow-down me-2"></i>Sell Orders
+                                    </h5>
+                                    <h3 class="text-danger" th:text="${transactionHistory.stream().filter(t -> t.isSell()).count()}"></h3>
+                                    <p class="card-text">Total sell transactions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">
+                                        <i class="fas fa-dollar-sign me-2"></i>Total Volume
+                                    </h5>
+                                    <h3 class="text-primary" th:text="'$' + ${transactionHistory.stream().map(t -> t.totalAmount != null ? t.totalAmount : 0).reduce(java.math.BigDecimal.ZERO, (a, b) -> a.add(b)) != null ? #numbers.formatDecimal(transactionHistory.stream().map(t -> t.totalAmount != null ? t.totalAmount : 0).reduce(java.math.BigDecimal.ZERO, (a, b) -> a.add(b)), 1, 2) : '0.00'}"></h3>
+                                    <p class="card-text">Total transaction value</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="/portfolio/dashboard" class="btn btn-primary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Filter functionality
+        document.querySelectorAll('input[name="filter"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const filter = this.id;
+                const rows = document.querySelectorAll('tbody tr');
+
+                rows.forEach(row => {
+                    if (filter === 'all') {
+                        row.style.display = '';
+                    } else if (filter === 'buy' && row.classList.contains('table-success')) {
+                        row.style.display = '';
+                    } else if (filter === 'sell' && row.classList.contains('table-danger')) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
