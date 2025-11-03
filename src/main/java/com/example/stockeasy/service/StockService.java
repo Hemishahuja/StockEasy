@@ -1,12 +1,13 @@
 package com.example.stockeasy.service;
 
-import com.example.stockeasy.domain.Stock;
-import com.example.stockeasy.repo.StockRepository;
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.List;
+import com.example.stockeasy.domain.Stock;
+import com.example.stockeasy.repo.StockRepository;
 
 /**
  * StockService for stock management operations.
@@ -40,8 +41,7 @@ public class StockService {
     }
     
     public Stock getStockBySymbol(String symbol) {
-        return stockRepository.findBySymbol(symbol)
-                .orElseThrow(() -> new RuntimeException("Stock not found"));
+        return stockRepository.findBySymbol(symbol.toUpperCase()).orElse(null);
     }
     
     public List<Stock> getStocksBySector(String sector) {

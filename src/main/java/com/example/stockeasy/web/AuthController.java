@@ -24,15 +24,7 @@ public class AuthController {
         return "auth/login";
     }
 
-    @PostMapping("/login")
-    public String processLogin(@RequestParam String username, @RequestParam String password) {
-        try {
-            User user = authService.authenticate(username, password);
-            return "redirect:/dashboard";
-        } catch (Exception e) {
-            return "redirect:/login?error=true";
-        }
-    }
+
 
     @GetMapping("/register")
     public String register() {

@@ -43,6 +43,13 @@ public class DashboardController {
         try {
             // Get current authenticated user
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Check if user is authenticated
+            if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal().equals("anonymousUser")) {
+                return "redirect:/login";
+            }
+
             String username = authentication.getName();
             com.example.stockeasy.domain.User user = (com.example.stockeasy.domain.User) userService.loadUserByUsername(username);
             Long userId = user.getId();

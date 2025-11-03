@@ -158,7 +158,7 @@
                             </thead>
                             <tbody>
                                 <tr th:each="transaction : ${transactionHistory}"
-                                    th:class="${transaction.class.name == 'com.example.stockeasy.domain.BuyTransaction' ? 'table-success' : 'table-danger'}">
+                                    th:class="${transaction.isBuy() ? 'table-success' : 'table-danger'}">
                                     <td>
                                         <div>
                                             <strong th:text="${#temporals.format(transaction?.createdAt, 'MMM dd, yyyy')}"></strong>
@@ -167,9 +167,9 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span th:if="${transaction.class.name == 'com.example.stockeasy.domain.BuyTransaction'}"
+                                        <span th:if="${transaction.isBuy()}"
                                               class="badge buy-badge">BUY</span>
-                                        <span th:if="${transaction.class.name == 'com.example.stockeasy.domain.SellTransaction'}"
+                                        <span th:if="${transaction.isSell()}"
                                               class="badge sell-badge">SELL</span>
                                     </td>
                                     <td th:text="${transaction?.stock?.companyName}"></td>
@@ -177,7 +177,7 @@
                                         <span class="badge bg-primary" th:text="${transaction?.stock?.symbol}"></span>
                                     </td>
                                     <td th:text="${transaction?.quantity}"></td>
-                                    <td th:text="'$' + ${transaction?.pricePerShare != null ? #numbers.formatDecimal(transaction.pricePerShare, 1, 2) : '0.00'}"></td>
+                                    <td th:text="'$' + ${transaction?.price != null ? #numbers.formatDecimal(transaction.price, 1, 2) : '0.00'}"></td>
                                     <td>
                                         <strong th:text="'$' + ${transaction?.totalAmount != null ? #numbers.formatDecimal(transaction.totalAmount, 1, 2) : '0.00'}"></strong>
                                     </td>
@@ -197,7 +197,7 @@
                                     <h5 class="card-title text-success">
                                         <i class="fas fa-arrow-up me-2"></i>Buy Orders
                                     </h5>
-                                    <h3 class="text-success" th:text="${transactionHistory.stream().filter(t -> t.class.name == 'com.example.stockeasy.domain.BuyTransaction').count()}"></h3>
+                                    <h3 class="text-success" th:text="${transactionHistory.stream().filter(t -> t.isBuy()).count()}"></h3>
                                     <p class="card-text">Total buy transactions</p>
                                 </div>
                             </div>
@@ -208,7 +208,7 @@
                                     <h5 class="card-title text-danger">
                                         <i class="fas fa-arrow-down me-2"></i>Sell Orders
                                     </h5>
-                                    <h3 class="text-danger" th:text="${transactionHistory.stream().filter(t -> t.class.name == 'com.example.stockeasy.domain.SellTransaction').count()}"></h3>
+                                    <h3 class="text-danger" th:text="${transactionHistory.stream().filter(t -> t.isSell()).count()}"></h3>
                                     <p class="card-text">Total sell transactions</p>
                                 </div>
                             </div>
@@ -219,7 +219,7 @@
                                     <h5 class="card-title text-primary">
                                         <i class="fas fa-dollar-sign me-2"></i>Total Volume
                                     </h5>
-                                    <h3 class="text-primary" th:text="'$' + ${transactionHistory.stream().map(t -> t.totalAmount).reduce(0, (a, b) -> a + b) != null ? #numbers.formatDecimal(transactionHistory.stream().map(t -> t.totalAmount).reduce(0, (a, b) -> a + b), 1, 2) : '0.00'}"></h3>
+                                    <h3 class="text-primary" th:text="'$' + ${transactionHistory.stream().map(t -> t.totalAmount != null ? t.totalAmount : 0).reduce(java.math.BigDecimal.ZERO, (a, b) -> a.add(b)) != null ? #numbers.formatDecimal(transactionHistory.stream().map(t -> t.totalAmount != null ? t.totalAmount : 0).reduce(java.math.BigDecimal.ZERO, (a, b) -> a.add(b)), 1, 2) : '0.00'}"></h3>
                                     <p class="card-text">Total transaction value</p>
                                 </div>
                             </div>

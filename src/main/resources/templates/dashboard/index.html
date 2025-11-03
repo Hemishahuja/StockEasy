@@ -21,6 +21,11 @@
         .navbar-brand {
             font-weight: bold;
             color: #007bff !important;
+            transition: all 0.3s ease;
+        }
+        .navbar-brand:hover {
+            color: #0056b3 !important;
+            transform: scale(1.05);
         }
         .dashboard-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -109,10 +114,23 @@
         <!-- Market Overview -->
         <div class="row mb-4">
             <div class="col-12">
-                <h3 class="mb-3">Market Overview</h3>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0">Market Overview</h3>
+                    <div>
+                        <button id="refreshAllBtn" class="btn btn-primary btn-sm me-2">
+                            <i class="fas fa-sync-alt"></i> Refresh All
+                        </button>
+                        <button id="autoRefreshBtn" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-clock"></i> Auto Refresh: OFF
+                        </button>
+                    </div>
+                </div>
+                <div id="marketStatus" class="alert alert-info" style="display: none;">
+                    <i class="fas fa-info-circle"></i> <span id="marketStatusText"></span>
+                </div>
                 <div class="row">
                     <div class="col-md-4 mb-3" th:each="stock : ${activeStocks}">
-                        <div class="card card-hover">
+                        <div class="card card-hover" th:data-symbol="${stock?.symbol}">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -120,13 +138,23 @@
                                         <p class="card-text text-muted mb-0" th:text="${stock?.companyName}"></p>
                                     </div>
                                     <div class="text-end">
-                                        <div class="h5 mb-0" th:text="'$' + ${stock?.currentPrice != null ? #numbers.formatDecimal(stock.currentPrice, 1, 2) : '0.00'}"></div>
-                                        <small class="stock-up" th:if="${stock?.isPriceUp()}">
-                                            <i class="fas fa-arrow-up"></i>
+                                        <div class="h5 mb-0 price-display" th:data-symbol="${stock?.symbol}">
+                                            <span class="price-value" th:text="'$' + ${stock?.currentPrice != null ? #numbers.formatDecimal(stock.currentPrice, 1, 2) : '0.00'}"></span>
+                                            <span class="spinner-border spinner-border-sm ms-2" role="status" style="display: none;"></span>
+                                        </div>
+                                        <small class="change-indicator" th:data-symbol="${stock?.symbol}">
+                                            <span class="stock-up" th:if="${stock?.isPriceUp()}">
+                                                <i class="fas fa-arrow-up"></i>
+                                            </span>
+                                            <span class="stock-down" th:if="${stock?.isPriceDown()}">
+                                                <i class="fas fa-arrow-down"></i>
+                                            </span>
                                         </small>
-                                        <small class="stock-down" th:if="${stock?.isPriceDown()}">
-                                            <i class="fas fa-arrow-down"></i>
-                                        </small>
+                                        <div class="mt-1">
+                                            <button class="btn btn-outline-primary btn-sm refresh-btn" th:data-symbol="${stock?.symbol}">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -252,5 +280,208 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Live Price Update JavaScript -->
+    <script>
+        // Global variables
+        let autoRefreshInterval = null;
+        let isAutoRefreshEnabled = false;
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            // Auto-refresh latest prices on page load
+            setTimeout(() => refreshAllPrices(), 1000);
+        });
+
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Individual refresh buttons
+            document.querySelectorAll('.refresh-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const symbol = this.getAttribute('data-symbol');
+                    refreshStockPrice(symbol);
+                });
+            });
+
+            // Refresh all button
+            document.getElementById('refreshAllBtn').addEventListener('click', function() {
+                refreshAllPrices();
+            });
+
+            // Auto refresh toggle
+            document.getElementById('autoRefreshBtn').addEventListener('click', function() {
+                toggleAutoRefresh();
+            });
+        }
+
+        // Refresh price for a specific stock
+        async function refreshStockPrice(symbol) {
+            const priceDisplay = document.querySelector(`.price-display[data-symbol="${symbol}"]`);
+            const spinner = priceDisplay.querySelector('.spinner-border');
+            const priceValue = priceDisplay.querySelector('.price-value');
+
+            // Show loading spinner
+            spinner.style.display = 'inline-block';
+            priceValue.style.opacity = '0.5';
+
+            try {
+                const response = await fetch(`/stocks/api/latest/${symbol}?interval=5min`);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    throw new Error('Invalid JSON response from server');
+                }
+
+                if (data && typeof data.closePrice !== 'undefined') {
+                    const closePrice = parseFloat(data.closePrice);
+
+                    // Check for error indicators
+                    if (closePrice === -1) {
+                        throw new Error('Server error occurred');
+                    }
+
+                    if (closePrice <= 0) {
+                        // Show "No data" for invalid prices
+                        priceValue.textContent = 'No data';
+                        showStatus(`${symbol}: No market data available`, 'warning');
+                        return;
+                    }
+
+                    // Valid price - display it
+                    const newPrice = closePrice.toFixed(2);
+                    priceValue.textContent = `$${newPrice}`;
+
+                    // Update change indicator
+                    updateChangeIndicator(symbol, data);
+
+                    showStatus(`Updated ${symbol} price`, 'success');
+                } else {
+                    throw new Error('Invalid response data structure');
+                }
+            } catch (error) {
+                console.error(`Error refreshing ${symbol}:`, error);
+
+                // Provide user-friendly error messages
+                let errorMessage = error.message;
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Network error - check connection';
+                } else if (error.message.includes('HTTP 404')) {
+                    errorMessage = 'Stock data not found';
+                } else if (error.message.includes('HTTP 429')) {
+                    errorMessage = 'Rate limit exceeded - try again later';
+                }
+
+                showStatus(`Failed to update ${symbol}: ${errorMessage}`, 'danger');
+            } finally {
+                // Hide loading spinner
+                spinner.style.display = 'none';
+                priceValue.style.opacity = '1';
+            }
+        }
+
+        // Refresh all stock prices
+        async function refreshAllPrices() {
+            const refreshBtn = document.getElementById('refreshAllBtn');
+            const originalText = refreshBtn.innerHTML;
+
+            // Show loading state
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+
+            const symbols = Array.from(document.querySelectorAll('.card[data-symbol]'))
+                .map(card => card.getAttribute('data-symbol'));
+
+            try {
+                // Refresh all symbols concurrently
+                const promises = symbols.map(symbol => refreshStockPrice(symbol));
+                await Promise.allSettled(promises);
+
+                showStatus(`Refreshed ${symbols.length} stocks`, 'success');
+            } catch (error) {
+                console.error('Error refreshing all prices:', error);
+                showStatus('Failed to refresh some prices', 'warning');
+            } finally {
+                // Restore button
+                refreshBtn.innerHTML = originalText;
+                refreshBtn.disabled = false;
+            }
+        }
+
+        // Update change indicator (up/down arrow)
+        function updateChangeIndicator(symbol, marketData) {
+            const changeIndicator = document.querySelector(`.change-indicator[data-symbol="${symbol}"]`);
+
+            // Clear existing indicators
+            changeIndicator.innerHTML = '';
+
+            if (marketData.closePrice && marketData.openPrice) {
+                const change = marketData.closePrice - marketData.openPrice;
+                if (change > 0) {
+                    changeIndicator.innerHTML = '<span class="stock-up"><i class="fas fa-arrow-up"></i></span>';
+                } else if (change < 0) {
+                    changeIndicator.innerHTML = '<span class="stock-down"><i class="fas fa-arrow-down"></i></span>';
+                }
+            }
+        }
+
+        // Toggle auto-refresh
+        function toggleAutoRefresh() {
+            const autoRefreshBtn = document.getElementById('autoRefreshBtn');
+
+            if (isAutoRefreshEnabled) {
+                // Disable auto-refresh
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                isAutoRefreshEnabled = false;
+                autoRefreshBtn.innerHTML = '<i class="fas fa-clock"></i> Auto Refresh: OFF';
+                autoRefreshBtn.classList.remove('btn-success');
+                autoRefreshBtn.classList.add('btn-outline-secondary');
+                showStatus('Auto-refresh disabled', 'info');
+            } else {
+                // Enable auto-refresh (every 5 minutes)
+                isAutoRefreshEnabled = true;
+                autoRefreshBtn.innerHTML = '<i class="fas fa-clock"></i> Auto Refresh: ON';
+                autoRefreshBtn.classList.remove('btn-outline-secondary');
+                autoRefreshBtn.classList.add('btn-success');
+
+                autoRefreshInterval = setInterval(() => {
+                    refreshAllPrices();
+                }, 5 * 60 * 1000); // 5 minutes
+
+                showStatus('Auto-refresh enabled (every 5 minutes)', 'success');
+            }
+        }
+
+        // Show status messages
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('marketStatus');
+            const statusText = document.getElementById('marketStatusText');
+
+            statusText.textContent = message;
+            statusDiv.className = `alert alert-${type}`;
+            statusDiv.style.display = 'block';
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Manual refresh via keyboard shortcut (Ctrl+R)
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'r') {
+                event.preventDefault();
+                refreshAllPrices();
+            }
+        });
+    </script>
 </body>
 </html>

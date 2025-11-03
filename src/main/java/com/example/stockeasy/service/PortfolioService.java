@@ -93,20 +93,30 @@ public class PortfolioService {
     }
     
     public BigDecimal getAveragePurchasePrice(Long userId, Long stockId) {
+        if (userId == null || stockId == null) {
+            return BigDecimal.ZERO;
+        }
+
         List<Portfolio> portfolioItems = portfolioRepository.findByUserIdAndStockId(userId, stockId);
-        
+
         if (portfolioItems.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        
+
         BigDecimal totalInvestment = portfolioItems.stream()
+                .filter(p -> p != null && p.getAveragePurchasePrice() != null)
                 .map(p -> p.getAveragePurchasePrice())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
+
         BigDecimal totalQuantity = portfolioItems.stream()
+                .filter(p -> p != null)
                 .map(p -> BigDecimal.valueOf(p.getQuantity()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
+
+        if (totalQuantity.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
         return totalInvestment.divide(totalQuantity, 2, java.math.RoundingMode.HALF_UP);
     }
     

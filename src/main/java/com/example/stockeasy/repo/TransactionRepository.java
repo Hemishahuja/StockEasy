@@ -35,13 +35,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     /**
      * Get user's buy transactions
      */
-    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = BuyTransaction AND t.user.id = :userId ORDER BY t.executedAt DESC")
+    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = com.example.stockeasy.domain.BuyTransaction AND t.user.id = :userId ORDER BY t.executedAt DESC")
     List<Transaction> findUserBuyTransactions(Long userId);
 
     /**
      * Get user's sell transactions
      */
-    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = SellTransaction AND t.user.id = :userId ORDER BY t.executedAt DESC")
+    @Query("SELECT t FROM Transaction t WHERE TYPE(t) = com.example.stockeasy.domain.SellTransaction AND t.user.id = :userId ORDER BY t.executedAt DESC")
     List<Transaction> findUserSellTransactions(Long userId);
     
     /**

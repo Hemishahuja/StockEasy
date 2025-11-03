@@ -128,14 +128,23 @@ public class TransactionService {
         if (buyTransactions.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        
+
         BigDecimal totalCost = buyTransactions.stream()
                 .filter(t -> t instanceof BuyTransaction)
                 .map(t -> t.getTotalAmount())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        BigDecimal currentValue = BigDecimal.valueOf(portfolioService.calculatePortfolioValue(userId));
-        
+
+        // Calculate current value for this specific stock
+        List<Portfolio> portfolios = portfolioRepository.findByUserIdAndStockId(userId, stockId);
+        if (portfolios.isEmpty()) {
+            // No current holdings, so loss equals total cost invested
+            return totalCost.negate();
+        }
+
+        BigDecimal currentValue = portfolios.stream()
+                .map(Portfolio::getCurrentValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         return currentValue.subtract(totalCost);
     }
 }

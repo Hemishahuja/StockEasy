@@ -39,28 +39,28 @@ public class DataInitializer implements CommandLineRunner {
 
     private void createSampleStocks() {
         Stock apple = new Stock("AAPL", "Apple Inc.", "Technology company", "Technology", "Consumer Electronics",
-                               java.math.BigDecimal.valueOf(150.00), null);
-        apple.setPreviousClose(java.math.BigDecimal.valueOf(145.00));
+                               java.math.BigDecimal.valueOf(270.37), null);
+        apple.setPreviousClose(java.math.BigDecimal.valueOf(265.50));
         stockRepository.save(apple);
 
         Stock google = new Stock("GOOGL", "Alphabet Inc.", "Search engine company", "Technology", "Internet Services",
-                                java.math.BigDecimal.valueOf(2800.00), null);
-        google.setPreviousClose(java.math.BigDecimal.valueOf(2750.00));
+                                java.math.BigDecimal.valueOf(281.19), null);
+        google.setPreviousClose(java.math.BigDecimal.valueOf(278.75));
         stockRepository.save(google);
 
         Stock microsoft = new Stock("MSFT", "Microsoft Corporation", "Software company", "Technology", "Software",
-                                   java.math.BigDecimal.valueOf(330.00), null);
-        microsoft.setPreviousClose(java.math.BigDecimal.valueOf(335.00));
+                                   java.math.BigDecimal.valueOf(517.81), null);
+        microsoft.setPreviousClose(java.math.BigDecimal.valueOf(512.45));
         stockRepository.save(microsoft);
 
         Stock amazon = new Stock("AMZN", "Amazon.com Inc.", "E-commerce company", "Consumer Discretionary", "Internet Retail",
-                                java.math.BigDecimal.valueOf(3200.00), null);
-        amazon.setPreviousClose(java.math.BigDecimal.valueOf(3150.00));
+                                java.math.BigDecimal.valueOf(244.22), null);
+        amazon.setPreviousClose(java.math.BigDecimal.valueOf(241.80));
         stockRepository.save(amazon);
 
         Stock tesla = new Stock("TSLA", "Tesla Inc.", "Electric vehicle company", "Consumer Discretionary", "Auto Manufacturers",
-                               java.math.BigDecimal.valueOf(250.00), null);
-        tesla.setPreviousClose(java.math.BigDecimal.valueOf(260.00));
+                               java.math.BigDecimal.valueOf(456.56), null);
+        tesla.setPreviousClose(java.math.BigDecimal.valueOf(450.25));
         stockRepository.save(tesla);
     }
 }

@@ -4,15 +4,22 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.stockeasy.domain.MarketData;
 import com.example.stockeasy.domain.Stock;
+import com.example.stockeasy.service.MarketDataService;
 import com.example.stockeasy.service.StockService;
+
+
 
 /**
  * StockController for stock management.
@@ -21,9 +28,12 @@ import com.example.stockeasy.service.StockService;
 @Controller
 @RequestMapping("/stocks")
 public class StockController {
-    
+
     @Autowired
     private StockService stockService;
+
+    @Autowired
+    private MarketDataService marketDataService;
     
     /**
      * Display all active stocks
@@ -97,5 +107,95 @@ public class StockController {
         model.addAttribute("stocks", stocks);
         model.addAttribute("price", price);
         return "stocks/list";
+    }
+
+    /**
+     * REST API endpoint to refresh market data for a specific symbol.
+     * Returns JSON response with refresh status.
+     */
+    @PostMapping("/api/refresh/{symbol}")
+    @ResponseBody
+    public ResponseEntity<String> refreshMarketData(
+            @PathVariable String symbol,
+            @RequestParam(defaultValue = "5min") String interval) {
+
+        try {
+            List<MarketData> marketDataList = marketDataService.refreshMarketDataSync(symbol.toUpperCase(), interval);
+            String message = String.format("Successfully refreshed %d data points for symbol %s",
+                                         marketDataList.size(), symbol.toUpperCase());
+            return ResponseEntity.ok(message);
+        } catch (Exception e) {
+            String errorMessage = String.format("Failed to refresh data for symbol %s: %s",
+                                              symbol.toUpperCase(), e.getMessage());
+            return ResponseEntity.badRequest().body(errorMessage);
+        }
+    }
+
+    /**
+     * REST API endpoint to get latest market data for a symbol.
+     * Returns the most recent market data point.
+     */
+    @GetMapping("/api/latest/{symbol}")
+    @ResponseBody
+    public ResponseEntity<MarketData> getLatestMarketData(
+            @PathVariable String symbol,
+            @RequestParam(defaultValue = "5min") String interval) {
+
+        try {
+            MarketData marketData = marketDataService.getLatestMarketDataForSymbolSync(symbol.toUpperCase(), interval);
+            if (marketData != null) {
+                // Ensure we have valid data
+                if (marketData.getClosePrice() == null) {
+                    marketData.setClosePrice(marketData.getOpenPrice() != null ? marketData.getOpenPrice() : BigDecimal.ZERO);
+                }
+                return ResponseEntity.ok(marketData);
+            } else {
+                // Return a default MarketData object with basic info
+                MarketData defaultData = new MarketData();
+                defaultData.setClosePrice(BigDecimal.ZERO);
+                defaultData.setOpenPrice(BigDecimal.ZERO);
+                return ResponseEntity.ok(defaultData);
+            }
+        } catch (Exception e) {
+            // Return a safe default response
+            MarketData errorData = new MarketData();
+            errorData.setClosePrice(BigDecimal.valueOf(-1)); // Indicate error
+            return ResponseEntity.ok(errorData);
+        }
+    }
+
+    /**
+     * REST API endpoint to fetch intraday data for a symbol.
+     * Returns all available intraday data points.
+     */
+    @GetMapping("/api/intraday/{symbol}")
+    @ResponseBody
+    public ResponseEntity<List<MarketData>> getIntradayData(
+            @PathVariable String symbol,
+            @RequestParam(defaultValue = "5min") String interval) {
+
+        try {
+            List<MarketData> marketDataList = marketDataService.fetchIntradayDataFromApiSync(symbol.toUpperCase(), interval);
+            return ResponseEntity.ok(marketDataList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * REST API endpoint to clear cache for a specific symbol.
+     */
+    @PostMapping("/api/clear-cache/{symbol}")
+    @ResponseBody
+    public ResponseEntity<String> clearCache(@PathVariable String symbol) {
+        try {
+            marketDataService.clearCacheForSymbol(symbol.toUpperCase());
+            String message = String.format("Cache cleared for symbol %s", symbol.toUpperCase());
+            return ResponseEntity.ok(message);
+        } catch (Exception e) {
+            String errorMessage = String.format("Failed to clear cache for symbol %s: %s",
+                                              symbol.toUpperCase(), e.getMessage());
+            return ResponseEntity.badRequest().body(errorMessage);
+        }
     }
 }
