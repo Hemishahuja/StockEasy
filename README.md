@@ -5,7 +5,7 @@
  **A modern, feature-rich stock trading simulator built with Spring Boot**
 
 [![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://openjdk.java.net/projects/jdk/21/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-orange.svg)](https://www.postgresql.org/)
 [![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.1.0-red.svg)](https://www.thymeleaf.org/)
 
@@ -28,10 +28,10 @@ StockEasy is a learning tool for practicing stock trading without real money. It
 - User Management- Secure authentication and user profiles
 
 ###  Security & Reliability
-- Spring Security- JWT-based authentication and authorization
+- Spring Security- Session-based authentication and authorization
 - Input Validation- Comprehensive validation using Bean Validation
 - Actuator Endpoints - Health monitoring and metrics
-- Code Quality - Spotless code formatting with Google Java Style
+- Error Handling - Global exception handling with custom responses
 
 ###  User Experience
 -  Responsive UI- Bootstrap-powered responsive web interface
@@ -63,8 +63,8 @@ src/
 ###  Technology Stack
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| **Backend** | Spring Boot 3.3.0 | Application framework |
-| **Database** | PostgreSQL | Primary data storage |
+| **Backend** | Spring Boot 3.5.0 | Application framework |
+| **Database** | H2/PostgreSQL | H2 for dev/test, PostgreSQL for production |
 | **ORM** | Spring Data JPA | Database persistence |
 | **Security** | Spring Security | Authentication & authorization |
 | **Frontend** | Thymeleaf + Bootstrap | Server-side rendering |
@@ -162,21 +162,28 @@ http://localhost:8080/swagger-ui.html
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/auth/login` | POST | User authentication |
-| `/api/users` | POST | Create new user |
-| `/api/stocks` | GET | Get all stocks |
-| `/api/stocks/{symbol}` | GET | Get specific stock |
-| `/api/portfolio` | GET | User portfolio |
-| `/api/portfolio/buy` | POST | Buy stock |
-| `/api/portfolio/sell` | POST | Sell stock |
-| `/api/watchlist` | GET/POST | Watchlist management |
+| `/stocks` | GET | List all active stocks |
+| `/stocks/search?symbol={symbol}` | GET | Search stock by symbol |
+| `/stocks/{stockId}` | GET | Get stock details |
+| `/stocks/sector/{sector}` | GET | Filter stocks by sector |
+| `/stocks/industry/{industry}` | GET | Filter stocks by industry |
+| `/stocks/above/{price}` | GET | Get stocks above price |
+| `/stocks/below/{price}` | GET | Get stocks below price |
+| `/stocks/api/refresh/{symbol}` | POST | Refresh market data |
+| `/stocks/api/latest/{symbol}` | GET | Get latest market data |
+| `/stocks/api/intraday/{symbol}` | GET | Get intraday data |
+| `/portfolio/dashboard` | GET | User portfolio dashboard |
+| `/portfolio/buy` | POST | Buy stocks |
+| `/portfolio/sell` | POST | Sell stocks |
+| `/portfolio/history` | GET | Transaction history |
+| `/watchlist` | GET | User watchlist |
+| `/watchlist/add` | POST | Add stock to watchlist |
 
 ###  Example API Request
 
 ```bash
-curl -X POST "http://localhost:8080/api/auth/login" \
-     -H "Content-Type: application/json" \
-     -d '{"username":"user@example.com", "password":"password"}'
+curl -X GET "http://localhost:8080/stocks/api/latest/AAPL?interval=5min" \
+     -H "Accept: application/json"
 ```
 
 ---
@@ -200,7 +207,7 @@ Fork & branch: feat/<short-name> or fix/<short-name>.
 
 Run tests: ./mvnw test (keep coverage for changed code).
 
-Format: code is auto-formatted (Spotless/Google Java Style). Run ./mvnw spotless:apply.
+
 
 Commit messages: short and actionable (e.g., feat: add buy/sell endpoints).
 
