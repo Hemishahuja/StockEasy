@@ -2,7 +2,9 @@
 # SR1 — Sprint 1 Retrospective (StockEasy)
 
 **Date/Time:** 2025-11-03
+
 **Sprint length:** 2 weeks
+
 **Note-taker:** Mark
 
 ---
