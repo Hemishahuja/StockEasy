@@ -261,7 +261,6 @@ UI-1 – Integrate existing StockEasy UI with backend
 - [ ]   see their portfolio/dashboard values change  
 - [ ] Capture 1–2 screenshots or a short GIF of the UI  
 - [ ] Attach the screenshot/GIF to the UI-1 Trello card  
-- [ ] 
 
 Acceptance Criteria  
 \- UI runs locally together with the backend  
