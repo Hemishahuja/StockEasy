@@ -22,7 +22,7 @@ public class AuthController {
             model.addAttribute("error", "Invalid username or password");
         }
         return "auth/login";
-    }
+    }// this returns the error which is invalid username or passwroed 
 
 
 
