@@ -176,7 +176,8 @@ http://localhost:8080/swagger-ui.html
 curl -X GET "http://localhost:8080/stocks/api/latest/AAPL?interval=5min" \
      -H "Accept: application/json"
 ```
-
+## Demo Video
+https://youtu.be/k7lC1UT4qBE
 ---
 
 ## Testing
