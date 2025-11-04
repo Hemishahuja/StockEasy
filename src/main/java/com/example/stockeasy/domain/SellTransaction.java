@@ -20,5 +20,5 @@ public class SellTransaction extends Transaction {
     
     public BigDecimal getCashAdded() {
         return getTotalAmount();
-    }
+    }// this returns the amount left after selling.
 }
