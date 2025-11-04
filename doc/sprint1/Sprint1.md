@@ -8,7 +8,7 @@ Location/Platform: Discord
 
 Attendees:    
 \- Hemish Ahuja – Scrum Master / Developer    
-\- Lama Abdelfattah– Scrum / Project tracking / Backend coordination    
+\- Lama Abdelfattah– Scrum / Project tracking / Product Owner    
 \- Arushi Bisht – Backend   
 \- Divy Parikh – Dashboard / UX handoff    
 \- Mark Feng – QA / Project Ops / Documentation
