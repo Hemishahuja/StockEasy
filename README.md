@@ -179,14 +179,6 @@ http://localhost:8080/swagger-ui.html
 | `/watchlist` | GET | User watchlist |
 | `/watchlist/add` | POST | Add stock to watchlist |
 
-###  Example API Request
-
-```bash
-curl -X GET "http://localhost:8080/stocks/api/latest/AAPL?interval=5min" \
-     -H "Accept: application/json"
-```
-
----
 
 
 
