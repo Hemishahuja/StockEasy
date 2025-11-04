@@ -48,7 +48,7 @@ public class AuthController {
             // Delegates to the service to create the new user
             User user = authService.register(username, email, password, firstName, lastName);
             
-            // Simple success feedback; user still needs to log in
+            // Success in registration. User still needs to log in
             model.addAttribute("message", "Registration successful! Please login.");
             return "auth/login";
         } catch (Exception e) {
@@ -58,3 +58,4 @@ public class AuthController {
         }
     }
 }
+// connects backend and frontend
