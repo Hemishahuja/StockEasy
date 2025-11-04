@@ -19,7 +19,7 @@ public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
-
+// Receives buy requests 
     @PostMapping("/buy")
     public String buyStock(@RequestParam Long userId,
                           @RequestParam Long stockId,
@@ -34,7 +34,7 @@ public class TransactionController {
             return "redirect:/portfolio/dashboard";
         }
     }
-
+// recieves sell requests
     @PostMapping("/sell")
     public String sellStock(@RequestParam Long userId,
                            @RequestParam Long stockId,
@@ -49,7 +49,7 @@ public class TransactionController {
             return "redirect:/portfolio/dashboard";
         }
     }
-
+// history
     @GetMapping("/history")
     public String getTransactionHistory(@RequestParam Long userId, Model model) {
         List<Transaction> transactions = transactionService.getUserTransactionHistory(userId);
