@@ -290,7 +290,8 @@ Acceptance Criteria
 
 \- Trello board: https://trello.com/b/FREEXWB4/stockeasy  
 \- Repo: https://github.com/EECS3311F25/StockEasy/tree/docs/sprint1/doc/sprint1  
-\- Folder: \`doc/sprint1/\` (this file, \`RPM.md\`, system design doc)
+\- Folder: \`doc/sprint1/\` (this file, \`RPM.md\`, system design doc)  
+\- Link to video: https://youtu.be/k7lC1UT4qBE
 
 \---
 
