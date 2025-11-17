@@ -2,7 +2,7 @@ package com.example.stockeasy.service;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +31,8 @@ public class AlphaVantageService {
     private final CacheService cacheService;
     private final ObjectMapper objectMapper;
 
-    // Rate limiting: track last API call time per symbol
-    private final ConcurrentHashMap<String, Long> lastApiCallTimes = new ConcurrentHashMap<>();
+    // Global rate limiting: track the timestamp of the last API call.
+    private final AtomicLong lastApiCallTime = new AtomicLong(0);
 
     public AlphaVantageService(WebClient.Builder webClientBuilder, AlphaVantageConfig config,
                               CacheService cacheService, ObjectMapper objectMapper) {
@@ -68,7 +68,7 @@ public class AlphaVantageService {
      * Makes API call with retry logic and rate limiting.
      */
     private Mono<JsonNode> makeApiCallWithRetry(String symbol, String interval, String cacheKey, int attempt) {
-        return enforceRateLimit(symbol)
+        return enforceRateLimit()
                 .then(makeApiCall(symbol, interval))
                 .doOnNext(response -> {
                     // Cache successful response
@@ -104,6 +104,7 @@ public class AlphaVantageService {
 
         return webClient.get()
                 .uri(uriBuilder -> {
+                    uriBuilder.path("/query");
                     params.forEach(uriBuilder::queryParam);
                     return uriBuilder.build();
                 })
@@ -111,27 +112,26 @@ public class AlphaVantageService {
                 .bodyToMono(String.class)
                 .timeout(config.getTimeout())
                 .flatMap(this::parseJsonResponse)
-                .doOnNext(response -> {
-                    // Update last API call time
-                    lastApiCallTimes.put(symbol, System.currentTimeMillis());
-                    logger.debug("Successfully fetched data for symbol: {}", symbol);
-                });
+                .doOnSuccess(response -> logger.debug("Successfully fetched data for symbol: {}", symbol));
     }
 
     /**
      * Enforces rate limiting by waiting if necessary.
      */
-    private Mono<Void> enforceRateLimit(String symbol) {
-        Long lastCallTime = lastApiCallTimes.get(symbol);
-        if (lastCallTime != null) {
-            long timeSinceLastCall = System.currentTimeMillis() - lastCallTime;
-            long remainingDelay = config.getRateLimitDelay() - timeSinceLastCall;
+    private Mono<Void> enforceRateLimit() {
+        long now = System.currentTimeMillis();
+        long lastCall = lastApiCallTime.get();
+        long timeSinceLastCall = now - lastCall;
+        long delayMillis = config.getRateLimitDelay();
 
-            if (remainingDelay > 0) {
-                logger.debug("Rate limiting: waiting {} ms for symbol {}", remainingDelay, symbol);
-                return Mono.delay(Duration.ofMillis(remainingDelay)).then();
-            }
+        if (timeSinceLastCall < delayMillis) {
+            long waitTime = delayMillis - timeSinceLastCall;
+            logger.debug("Global rate limiting: waiting {} ms before next API call.", waitTime);
+            return Mono.delay(Duration.ofMillis(waitTime))
+                       .then(Mono.fromRunnable(() -> lastApiCallTime.set(System.currentTimeMillis())));
         }
+
+        lastApiCallTime.set(now);
         return Mono.empty();
     }
 
@@ -139,6 +139,9 @@ public class AlphaVantageService {
      * Parses JSON response string to JsonNode.
      */
     private Mono<JsonNode> parseJsonResponse(String responseBody) {
+        // Log the raw response body for debugging purposes. This is crucial for diagnosing API issues.
+        logger.info("Raw Alpha Vantage API Response: {}", responseBody);
+
         try {
             // Check if response is HTML (indicates an error page)
             if (responseBody.trim().startsWith("<!DOCTYPE html>") ||
@@ -198,13 +201,6 @@ public class AlphaVantageService {
 
     /**
      * Clears the rate limiting state for a symbol.
-     */
-    public void clearRateLimit(String symbol) {
-        lastApiCallTimes.remove(symbol);
-    }
-
-    /**
-     * Gets the current cache size.
      */
     public int getCacheSize() {
         return cacheService.size();
