@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockEasy - Help & Basics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .help-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .concept-card {
+            border-left: 4px solid #667eea;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>StockEasy
+            </a>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/help">Help</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="help-header">
+        <div class="container text-center">
+            <h1><i class="fas fa-book me-2"></i>Learn the Basics</h1>
+            <p class="mb-0">Understanding key stock trading concepts</p>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                
+                <!-- What is a Stock? -->
+                <div class="card concept-card">
+                    <div class="card-body">
+                        <h3><i class="fas fa-certificate text-primary me-2"></i>What is a Stock?</h3>
+                        <p>A stock represents a unit of ownership in a company. When you buy a stock, you become a partial owner of that business.</p>
+                        <p>In real markets, stock prices change based on company performance, investor expectations, and overall market conditions. In StockEasy, prices come from a live stock market API, so you interact with real market data using virtual money.</p>
+                    </div>
+                </div>
+
+                <!-- Buying Stocks -->
+                <div class="card concept-card">
+                    <div class="card-body">
+                        <h3><i class="fas fa-shopping-cart text-success me-2"></i>Buying Stocks</h3>
+                        <p><strong>Buying</strong> means purchasing shares at the current market price.</p>
+                        <ul>
+                            <li>The cost is deducted from your cash balance</li>
+                            <li>The shares are added to your portfolio</li>
+                            <li>You profit if you later sell at a higher price</li>
+                        </ul>
+                        <p class="mb-0"><strong>Example</strong><br>
+                        Buy 10 shares of Apple (AAPL) at $150 each:<br>
+                        Total cost = 10 × 150 = $1,500</p>
+                    </div>
+                </div>
+
+                <!-- Selling Stocks -->
+                <div class="card concept-card">
+                    <div class="card-body">
+                        <h3><i class="fas fa-hand-holding-usd text-danger me-2"></i>Selling Stocks</h3>
+                        <p><strong>Selling</strong> means selling shares you already own at the current market price.</p>
+                        <ul>
+                            <li>Shares are removed from your portfolio</li>
+                            <li>Sale proceeds are added to your cash balance</li>
+                            <li>You realize a profit if you sell above your purchase price, or a loss if you sell below it</li>
+                        </ul>
+                        <p class="mb-0"><strong>Example</strong><br>
+                        Sell 10 shares at $160 each:<br>
+                        Cash received = 10 × 160 = $1,600<br>
+                        If you originally paid $1,500, profit = $100</p>
+                    </div>
+                </div>
+
+                <!-- Portfolio -->
+                <div class="card concept-card">
+                    <div class="card-body">
+                        <h3><i class="fas fa-briefcase text-info me-2"></i>Portfolio</h3>
+                        <p>Your portfolio is the set of all stocks you currently own. It typically shows:</p>
+                        <ul>
+                            <li>Quantity of shares for each stock</li>
+                            <li>Purchase price (average cost)</li>
+                            <li>Current market value</li>
+                        </ul>
+                        <p class="mb-0">This gives you a snapshot of your overall positions in StockEasy.</p>
+                    </div>
+                </div>
+
+                <!-- Profit and Loss -->
+                <div class="card concept-card">
+                    <div class="card-body">
+                        <h3><i class="fas fa-chart-line text-warning me-2"></i>Profit & Loss (P&L)</h3>
+                        <p>P&L (Profit and Loss) shows how much you have gained or lost on your trades.</p>
+                        <ul>
+                            <li><strong>Unrealized P&L:</strong> Profit or loss on positions you still hold, based on the current price</li>
+                            <li><strong>Realized P&L:</strong> Profit or loss from positions you have already sold</li>
+                        </ul>
+                        <p class="mb-0">Both help you understand how your active trades and completed trades are performing.</p>
+                    </div>
+                </div>
+
+                <!-- Market Price -->
+                <div class="card concept-card">
+                    <div class="card-body">
+                        <h3><i class="fas fa-dollar-sign text-success me-2"></i>Market Price</h3>
+                        <p>The market price is the current trading price of a stock. It changes throughout the day as buyers and sellers interact.</p>
+                        <p class="mb-0">In StockEasy, prices are fetched from a live stock market API, so the values you see closely match current market prices.</p>
+                    </div>
+                </div>
+
+                <!-- Cash Balance -->
+                <div class="card concept-card">
+                    <div class="card-body">
+                        <h3><i class="fas fa-wallet text-primary me-2"></i>Cash Balance</h3>
+                        <p>Your cash balance is the amount of virtual money available to trade.</p>
+                        <p>In StockEasy:</p>
+                        <ul>
+                            <li>You start with $100,000 in virtual cash</li>
+                            <li>Buying stocks decreases your cash balance</li>
+                            <li>Selling stocks increases your cash balance</li>
+                        </ul>
+                        <p class="mb-0">Your cash balance effectively sets your trading budget in the simulator.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

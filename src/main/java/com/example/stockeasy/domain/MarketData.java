@@ -1,10 +1,21 @@
 package com.example.stockeasy.domain;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * MarketData entity representing historical price data for stocks.
@@ -42,6 +53,9 @@ public class MarketData {
     @Column(name = "volume")
     private Long volume;
     
+    @Transient // Not persisted in the DB, used for transient state
+    private boolean isStale = false;
+
     @Column(name = "adjusted_close", precision = 15, scale = 2)
     private BigDecimal adjustedClose;
     
@@ -135,11 +149,7 @@ public class MarketData {
     
     public BigDecimal getClosePrice() { return closePrice; }
     public void setClosePrice(BigDecimal closePrice) { 
-        this.closePrice = closePrice; 
-        // When close price is updated, update the stock's current price
-        if (stock != null) {
-            stock.updatePrice(closePrice);
-        }
+        this.closePrice = closePrice;
     }
     
     public Long getVolume() { return volume; }
@@ -151,6 +161,14 @@ public class MarketData {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     
+    public boolean isStale() {
+        return isStale;
+    }
+
+    public void setStale(boolean isStale) {
+        this.isStale = isStale;
+    }
+
     // Utility methods
     @Override
     public boolean equals(Object o) {

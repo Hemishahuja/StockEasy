@@ -27,14 +27,17 @@ public class WatchlistController {
      */
     @GetMapping
     public String getWatchlist(Model model) {
-        // For demo, use user ID 1
-        Long userId = 1L;
-        // This would normally get the user's watchlist
-        // For demo, we'll simulate empty watchlist
-        model.addAttribute("watchlistItems", java.util.Collections.emptyList());
-        return "watchlist/list";
+        // Temporary demo data so the page has something to show
+        java.util.List<String> symbols =
+                java.util.Arrays.asList("AAPL", "GOOGL", "MSFT");
+
+        // Name must match what the HTML uses
+        model.addAttribute("watchlist", symbols);
+
+        // This must match: templates/watchlist/index.html
+        return "watchlist/index";
     }
-    
+
     /**
      * Add stock to watchlist
      */

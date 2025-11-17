@@ -19,22 +19,28 @@ import com.example.stockeasy.repo.UserRepository;
  */
 @Service
 public class UserService implements UserDetailsService {
-    
+
+    // Repos to read/write users and portfolio data
     @Autowired
     private UserRepository userRepository;
     
     @Autowired
     private PortfolioRepository portfolioRepository;
-    
+
+    // Used to hash/check passwords
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // Hook for Spring Security: load a user for auth by username.
+    // Throws if the user isn't found (signals bad login).
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
+    // Create a new user account.
+    // Checks for duplicate username/email, sets some defaults, then saves.
     public User registerUser(String username, String email, String password, String firstName, String lastName) {
         // Check if user already exists
         if (userRepository.existsByUsername(username)) {
@@ -53,7 +59,9 @@ public class UserService implements UserDetailsService {
         
         return userRepository.save(user);
     }
-    
+
+    // Verify credentials (username and password)
+    // On success, update last login. On failure, throw a generic auth error
     public User authenticateUser(String username, String password) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Invalid username or password"));
@@ -65,12 +73,14 @@ public class UserService implements UserDetailsService {
         user.updateLastLogin();
         return userRepository.save(user);
     }
-    
+
+    // Get a user profile with related data
     public User getUserProfile(Long userId) {
         return userRepository.findByIdWithRelationships(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
-    
+
+    // Update basic profile fields and save.
     public User updateUserProfile(Long userId, String firstName, String lastName, String email) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

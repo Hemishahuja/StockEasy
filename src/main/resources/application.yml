@@ -75,10 +75,11 @@ app:
     max-watchlist-items: 20
     max-portfolio-items: 50
     market-data-refresh-interval: 300000 # 5 minutes in milliseconds
+    default-fallback-price: 150.00 # Default price if no market data is available
 
 # Alpha Vantage API Configuration
 alpha-vantage:
-  api-key: "demo" # Replace with your actual API key
+  api-key: 5GCX2Q43JNOM112F # Replace with your actual API key
   base-url: "https://www.alphavantage.co"
   timeout: 30s
   rate-limit-delay: 12000 # 12 seconds between calls to stay under 5 calls/minute limit
@@ -104,7 +105,7 @@ spring:
 
 # Development Alpha Vantage Configuration
 alpha-vantage:
-  api-key: "demo" # Use demo key for development
+  api-key: "5GCX2Q43JNOM112F" # Use personal key for development
   cache-ttl: 5m # Shorter cache for development
 
 ---
@@ -153,6 +154,6 @@ spring:
 
 # Production Alpha Vantage Configuration
 alpha-vantage:
-  api-key: ${ALPHA_VANTAGE_API_KEY:5G2POX2TBU1LF6QS} # Must be set as environment variable
+  api-key: ${ALPHA_VANTAGE_API_KEY} # Must be set as environment variable
   cache-ttl: 30m # Longer cache for production
   rate-limit-delay: 15000 # More conservative rate limiting for production

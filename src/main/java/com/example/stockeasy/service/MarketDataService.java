@@ -11,6 +11,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.stockeasy.domain.MarketData;
@@ -43,6 +44,9 @@ public class MarketDataService {
     @Autowired
     private ObjectMapper objectMapper;
     
+    @Value("${app.stock.default-fallback-price}")
+    private BigDecimal defaultFallbackPrice;
+
     public MarketData createMarketData(Long stockId, LocalDateTime date, BigDecimal openPrice, BigDecimal highPrice, BigDecimal lowPrice, BigDecimal closePrice, Long volume) {
         MarketData marketData = new MarketData();
         // In a real implementation, you would get stock from repository
@@ -102,31 +106,12 @@ public class MarketDataService {
                 return apiData;
             }
 
-            // Fall back to local data if API fails
+            // Fall back to local data if API call was successful but returned no data
             logger.warn("API call failed or returned no data, falling back to local data for symbol: {}", symbol);
-            Stock stock = stockService.getStockBySymbol(symbol);
-            if (stock == null) {
-                logger.warn("Stock not found for symbol: {}", symbol);
-                return new ArrayList<>();
-            }
-            List<MarketData> localData = marketDataRepository.findByStockId(stock.getId());
-            logger.info("Returning {} local data points for symbol: {}", localData.size(), symbol);
-            return localData;
-
+            return getLocalDataForSymbol(symbol);
         } catch (AlphaVantageApiException e) {
             logger.warn("Alpha Vantage API error for symbol {}, falling back to local data: {}", symbol, e.getMessage());
-            // Fall back to local data on API errors
-            try {
-                Stock stock = stockService.getStockBySymbol(symbol);
-                if (stock != null) {
-                    List<MarketData> localData = marketDataRepository.findByStockId(stock.getId());
-                    logger.info("Returning {} local data points for symbol: {}", localData.size(), symbol);
-                    return localData;
-                }
-            } catch (Exception localException) {
-                logger.error("Failed to get local data for symbol {}: {}", symbol, localException.getMessage());
-            }
-            return new ArrayList<>();
+            return getLocalDataForSymbol(symbol);
         } catch (Exception e) {
             logger.error("Unexpected error fetching data for symbol {}: {}", symbol, e.getMessage());
             return new ArrayList<>();
@@ -193,37 +178,29 @@ public class MarketDataService {
                 // Continue to fallback logic
             }
 
-            // If no market data exists anywhere, create a synthetic MarketData from stock's current price
-            BigDecimal currentPrice = stock.getCurrentPrice();
-            if (currentPrice == null || currentPrice.compareTo(BigDecimal.ZERO) <= 0) {
-                logger.warn("Stock {} has invalid current price: {}", symbol, currentPrice);
-                currentPrice = BigDecimal.valueOf(150.00); // Default fallback price
-            }
+            // If no market data exists anywhere, create a synthetic MarketData from the default fallback price
+            logger.warn("No live or historical data found for {}. Creating synthetic record with default fallback price.", symbol);
+            BigDecimal fallbackPrice = defaultFallbackPrice;
 
             MarketData syntheticData = new MarketData();
             syntheticData.setStock(stock);
             syntheticData.setDate(LocalDateTime.now());
-            syntheticData.setClosePrice(currentPrice);
-            syntheticData.setOpenPrice(currentPrice);
-            syntheticData.setHighPrice(currentPrice);
-            syntheticData.setLowPrice(currentPrice);
+            syntheticData.setClosePrice(fallbackPrice);
+            syntheticData.setOpenPrice(fallbackPrice);
+            syntheticData.setHighPrice(fallbackPrice);
+            syntheticData.setLowPrice(fallbackPrice);
             syntheticData.setVolume(0L);
+            syntheticData.setStale(true); // Mark this data as stale/synthetic
 
             // Save the synthetic data to update the stock's current price
             MarketData savedData = marketDataRepository.save(syntheticData);
-            logger.info("Created and saved synthetic market data for {}: ${}", symbol, currentPrice);
+            logger.info("Created and saved synthetic market data for {}: ${}", symbol, fallbackPrice);
             return savedData;
 
         } catch (Exception e) {
             logger.error("Failed to get latest data for symbol {}: {}", symbol, e.getMessage(), e);
-
-            // Return a safe default with error indicator
-            MarketData errorData = new MarketData();
-            errorData.setClosePrice(BigDecimal.valueOf(-1)); // Error indicator
-            errorData.setOpenPrice(BigDecimal.ONE);
-            errorData.setHighPrice(BigDecimal.ONE);
-            errorData.setLowPrice(BigDecimal.ONE);
-            return errorData;
+            // Propagate a runtime exception to let the caller handle the failure.
+            throw new RuntimeException("Failed to get latest market data for symbol " + symbol, e);
         }
     }
 
@@ -336,6 +313,11 @@ public class MarketDataService {
             if (!marketDataList.isEmpty()) {
                 List<MarketData> savedData = marketDataRepository.saveAll(marketDataList);
                 logger.info("Saved {} market data points to database for symbol: {}", savedData.size(), symbol);
+
+                // Ensure the stock's current price is updated with the latest fetched price
+                MarketData latestData = savedData.get(0); // Assuming list is sorted descending by date
+                stockService.updateStockPrice(stock.getId(), latestData.getClosePrice());
+
                 return savedData;
             }
 
@@ -348,5 +330,25 @@ public class MarketDataService {
             logger.error("Unexpected error fetching data from Alpha Vantage for symbol {}: {}", symbol, e.getMessage());
             return new ArrayList<>();
         }
+    }
+
+    /**
+     * Private helper to fetch local data for a symbol.
+     *
+     * @param symbol the stock symbol
+     * @return List of MarketData, or empty list if not found.
+     */
+    private List<MarketData> getLocalDataForSymbol(String symbol) {
+        try {
+            Stock stock = stockService.getStockBySymbol(symbol);
+            if (stock != null) {
+                List<MarketData> localData = marketDataRepository.findByStockId(stock.getId());
+                logger.info("Returning {} local data points for symbol: {}", localData.size(), symbol);
+                return localData;
+            }
+        } catch (Exception e) {
+            logger.error("Failed to get local data for symbol {}: {}", symbol, e.getMessage());
+        }
+        return new ArrayList<>();
     }
 }

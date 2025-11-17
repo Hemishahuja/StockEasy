@@ -1,15 +1,19 @@
 package com.example.stockeasy.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.example.stockeasy.domain.Stock;
 import com.example.stockeasy.domain.User;
 import com.example.stockeasy.repo.StockRepository;
 import com.example.stockeasy.repo.UserRepository;
-
-import io.netty.util.internal.ThreadLocalRandom;
+import com.example.stockeasy.service.MarketDataService;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -19,6 +23,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private StockRepository stockRepository;
+
+    @Autowired
+    private MarketDataService marketDataService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -39,36 +46,53 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private void createSampleStocks() {
-        double appleStockValue = ThreadLocalRandom.current().nextDouble(266.00, 270.00);
-        double googleStockValue = ThreadLocalRandom.current().nextDouble(279.00, 281.00);
-        double microsoftStockValue = ThreadLocalRandom.current().nextDouble(513.00, 517.00);
-        double amazonStockValue = ThreadLocalRandom.current().nextDouble(242.00, 244.00);
-        double teslaStockValue = ThreadLocalRandom.current().nextDouble(451.00, 456.00);
+    /**
+     * After the application is fully started, this method is triggered to
+     * fetch initial market data for all existing stocks in the background.
+     */
+    @EventListener(ApplicationReadyEvent.class)
+    @Async // Runs this method in a separate background thread
+    public void fetchInitialMarketData() {
+        System.out.println("Application is ready. Starting initial market data fetch in the background...");
+        List<Stock> stocks = stockRepository.findAll();
+        if (stocks.isEmpty()) {
+            System.out.println("No stocks found to fetch data for.");
+            return;
+        }
 
-        
+        stocks.forEach(stock -> {
+            try {
+                marketDataService.getLatestMarketDataForSymbolSync(stock.getSymbol(), "5min");
+            } catch (Exception e) {
+                System.err.println("Failed to fetch initial market data for " + stock.getSymbol() + ": " + e.getMessage());
+            }
+        });
+        System.out.println("Initial market data fetch process completed.");
+    }
+
+    private void createSampleStocks() {
         Stock apple = new Stock("AAPL", "Apple Inc.", "Technology company", "Technology", "Consumer Electronics",
-                               java.math.BigDecimal.valueOf(appleStockValue), null);
+                               java.math.BigDecimal.ZERO, null);
         apple.setPreviousClose(java.math.BigDecimal.valueOf(265.50));
         stockRepository.save(apple);
 
         Stock google = new Stock("GOOGL", "Alphabet Inc.", "Search engine company", "Technology", "Internet Services",
-                                java.math.BigDecimal.valueOf(googleStockValue), null);
+                                java.math.BigDecimal.ZERO, null);
         google.setPreviousClose(java.math.BigDecimal.valueOf(278.75));
         stockRepository.save(google);
 
         Stock microsoft = new Stock("MSFT", "Microsoft Corporation", "Software company", "Technology", "Software",
-                                   java.math.BigDecimal.valueOf(microsoftStockValue), null);
+                                   java.math.BigDecimal.ZERO, null);
         microsoft.setPreviousClose(java.math.BigDecimal.valueOf(512.45));
         stockRepository.save(microsoft);
 
         Stock amazon = new Stock("AMZN", "Amazon.com Inc.", "E-commerce company", "Consumer Discretionary", "Internet Retail",
-                                java.math.BigDecimal.valueOf(amazonStockValue), null);
+                                java.math.BigDecimal.ZERO, null);
         amazon.setPreviousClose(java.math.BigDecimal.valueOf(241.80));
         stockRepository.save(amazon);
 
         Stock tesla = new Stock("TSLA", "Tesla Inc.", "Electric vehicle company", "Consumer Discretionary", "Auto Manufacturers",
-                               java.math.BigDecimal.valueOf(teslaStockValue), null);
+                               java.math.BigDecimal.ZERO, null);
         tesla.setPreviousClose(java.math.BigDecimal.valueOf(450.25));
         stockRepository.save(tesla);
     }
