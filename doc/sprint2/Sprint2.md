@@ -92,6 +92,9 @@ _All user stories were agreed upon and committed to for Sprint 2._
 - Create Help Page UI  
 - Connect page to buy/sell workflow if needed  
 
+## Youtube Video link
+
+https://youtu.be/-nQ7u6bkyI0
 
 ---
 
