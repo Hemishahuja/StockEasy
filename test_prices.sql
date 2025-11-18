@@ -1,6 +1,6 @@
 -- SQL script to verify stock prices are correctly set
 -- This can be used to check the database after the application runs
-
+-- THIS IS A TEMPORARY FILE FOR TESTING PURPOSES ONLY NOT FOR GRADING OR USE CASES -- 
 SELECT 
     symbol,
     company_name,
