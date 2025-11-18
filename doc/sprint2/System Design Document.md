@@ -491,32 +491,11 @@ At a high level, the app uses a layered MVC design. Controllers translate HTTP r
 - `PortfolioController` → `PortfolioService` (+ `UserService`, `StockService`)
 - `TransactionService` → `TransactionRepository`, `UserRepository`, `StockRepository`, `PortfolioRepository` (+ `PortfolioService`)
 
-# 5) Known Issues and Sprint 2 Improvements
 
-### Watchlist Persistence
-- **Current State:** Watchlist uses an in-memory list in `WatchlistController` (resets on app restart)
-- **Sprint 2 Goal:** Full database integration via `WatchlistRepository` and proper JPA entity linking between users and watched stocks
-- **Impact:** Current watchlist is for demo/UI testing only; data does not persist
-
-### Navigation Consistency
-- **Current State:** Help page previously had different navbar structure (right-aligned, limited links)
-- **Sprint 2 Status:** ✅ **RESOLVED** - Navigation standardized across all pages with full menu and user dropdown
-
-### Search and Filtering Infrastructure
-- **Current State:** Frontend placeholders exist for stock search/filtering
-- **Sprint 2 Goal:** Implement backend infrastructure for stock search by symbol/name and filtering capabilities
-- **Endpoints to Add:** Search/filter logic in `StockService` and `StockController`
-
-### Help Page Content Expansion
-- **Current State:** Basic educational content about stock trading concepts
-- **Sprint 2 Goal:** 
-    - Add beginner tips and outcome suggestions
-    - Potentially integrate help tips into buy/sell workflow
-    - Expand educational content based on user actions
 
 ---
 
-# 6) Errors and Exception Strategy
+# 5) Errors and Exception Strategy
 
 
 We handle errors in three places. 
