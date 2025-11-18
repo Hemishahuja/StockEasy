@@ -178,23 +178,29 @@ public class MarketDataService {
                 // Continue to fallback logic
             }
 
-            // If no market data exists anywhere, create a synthetic MarketData from the default fallback price
-            logger.warn("No live or historical data found for {}. Creating synthetic record with default fallback price.", symbol);
-            BigDecimal fallbackPrice = defaultFallbackPrice;
+            // If no market data exists anywhere, use the stock's current price instead of fallback
+            logger.warn("No live or historical data found for {}. Using stock's current price instead of fallback.", symbol);
+            BigDecimal currentStockPrice = stock.getCurrentPrice();
+            
+            // Only use fallback if stock's current price is zero or null (indicates no proper initialization)
+            BigDecimal effectivePrice = (currentStockPrice != null && currentStockPrice.compareTo(BigDecimal.ZERO) > 0) 
+                ? currentStockPrice 
+                : defaultFallbackPrice;
 
             MarketData syntheticData = new MarketData();
             syntheticData.setStock(stock);
             syntheticData.setDate(LocalDateTime.now());
-            syntheticData.setClosePrice(fallbackPrice);
-            syntheticData.setOpenPrice(fallbackPrice);
-            syntheticData.setHighPrice(fallbackPrice);
-            syntheticData.setLowPrice(fallbackPrice);
+            syntheticData.setClosePrice(effectivePrice);
+            syntheticData.setOpenPrice(effectivePrice);
+            syntheticData.setHighPrice(effectivePrice);
+            syntheticData.setLowPrice(effectivePrice);
             syntheticData.setVolume(0L);
             syntheticData.setStale(true); // Mark this data as stale/synthetic
 
             // Save the synthetic data to update the stock's current price
             MarketData savedData = marketDataRepository.save(syntheticData);
-            logger.info("Created and saved synthetic market data for {}: ${}", symbol, fallbackPrice);
+            logger.info("Created and saved synthetic market data for {}: ${} (using {} price)", 
+                symbol, effectivePrice, currentStockPrice != null && currentStockPrice.compareTo(BigDecimal.ZERO) > 0 ? "stock's current" : "fallback");
             return savedData;
 
         } catch (Exception e) {

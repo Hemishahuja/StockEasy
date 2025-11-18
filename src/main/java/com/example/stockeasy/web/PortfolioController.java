@@ -217,6 +217,43 @@ public class PortfolioController {
     }
     
     /**
+     * REST API endpoint to change user's cash balance
+     * Returns JSON response for frontend AJAX handling
+     */
+    @PostMapping("/change-balance")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<java.util.Map<String, Object>> changeBalance(
+            @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, Object> request) {
+        try {
+            Long userId = ((Number) request.get("userId")).longValue();
+            Double newBalance = ((Number) request.get("newBalance")).doubleValue();
+            
+            if (newBalance <= 0) {
+                java.util.Map<String, Object> response = new java.util.HashMap<>();
+                response.put("success", false);
+                response.put("message", "Balance must be greater than zero.");
+                return org.springframework.http.ResponseEntity.badRequest().body(response);
+            }
+            
+            // Update user's cash balance
+            User updatedUser = userService.updateUserCashBalance(userId, newBalance);
+            
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", true);
+            response.put("message", "Balance updated successfully!");
+            response.put("newBalance", updatedUser.getCashBalance());
+            
+            return org.springframework.http.ResponseEntity.ok(response);
+        } catch (Exception e) {
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to update balance: " + e.getMessage());
+            
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
      * Display transaction history
      */
     @GetMapping("/history")

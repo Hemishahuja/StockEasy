@@ -42,10 +42,41 @@ public class WatchlistController {
      */
     @GetMapping
     public String getWatchlist(Model model) {
+<<<<<<< Updated upstream
         model.addAttribute("watchlist", watchlist);
         // backing object for the modal form (symbol, price, notes)
         model.addAttribute("newItem", new WatchlistItem());
         return "watchlist/index";   // matches templates/watchlist/index.html
+=======
+        try {
+            // Get current authenticated user
+            org.springframework.security.core.Authentication authentication = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            
+            // For now, use a mock user ID since we don't have full authentication service
+            // In a real implementation, you would get the user from UserService
+            Long userId = 1L; // Temporary mock user ID
+            
+            // Get user's watchlist items
+            java.util.List<com.example.stockeasy.domain.Watchlist> watchlistItems = 
+                watchlistService.getUserWatchlist(userId);
+            
+            // Add to model for the template
+            model.addAttribute("watchlistItems", watchlistItems);
+            
+            // Add user info for navbar
+            model.addAttribute("user", new com.example.stockeasy.domain.User("Demo", "User", "demo@example.com"));
+            
+        } catch (Exception e) {
+            // Fallback to empty list if there's an error
+            model.addAttribute("watchlistItems", java.util.Collections.emptyList());
+            model.addAttribute("user", null);
+        }
+        
+        // This must match: templates/watchlist/index.html
+        return "watchlist/index";
+>>>>>>> Stashed changes
     }
 
     /**
