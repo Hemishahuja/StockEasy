@@ -71,29 +71,48 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createSampleStocks() {
+        // Create stocks with realistic current prices
         Stock apple = new Stock("AAPL", "Apple Inc.", "Technology company", "Technology", "Consumer Electronics",
-                               java.math.BigDecimal.ZERO, null);
-        apple.setPreviousClose(java.math.BigDecimal.valueOf(265.50));
+                               java.math.BigDecimal.valueOf(185.75), null);
+        apple.setPreviousClose(java.math.BigDecimal.valueOf(183.50));
         stockRepository.save(apple);
 
         Stock google = new Stock("GOOGL", "Alphabet Inc.", "Search engine company", "Technology", "Internet Services",
-                                java.math.BigDecimal.ZERO, null);
-        google.setPreviousClose(java.math.BigDecimal.valueOf(278.75));
+                                java.math.BigDecimal.valueOf(148.30), null);
+        google.setPreviousClose(java.math.BigDecimal.valueOf(147.20));
         stockRepository.save(google);
 
         Stock microsoft = new Stock("MSFT", "Microsoft Corporation", "Software company", "Technology", "Software",
-                                   java.math.BigDecimal.ZERO, null);
-        microsoft.setPreviousClose(java.math.BigDecimal.valueOf(512.45));
+                                   java.math.BigDecimal.valueOf(334.80), null);
+        microsoft.setPreviousClose(java.math.BigDecimal.valueOf(332.90));
         stockRepository.save(microsoft);
 
         Stock amazon = new Stock("AMZN", "Amazon.com Inc.", "E-commerce company", "Consumer Discretionary", "Internet Retail",
-                                java.math.BigDecimal.ZERO, null);
-        amazon.setPreviousClose(java.math.BigDecimal.valueOf(241.80));
+                                java.math.BigDecimal.valueOf(145.60), null);
+        amazon.setPreviousClose(java.math.BigDecimal.valueOf(144.30));
         stockRepository.save(amazon);
 
         Stock tesla = new Stock("TSLA", "Tesla Inc.", "Electric vehicle company", "Consumer Discretionary", "Auto Manufacturers",
-                               java.math.BigDecimal.ZERO, null);
-        tesla.setPreviousClose(java.math.BigDecimal.valueOf(450.25));
+                               java.math.BigDecimal.valueOf(248.90), null);
+        tesla.setPreviousClose(java.math.BigDecimal.valueOf(245.20));
         stockRepository.save(tesla);
+
+        // Add a few more realistic stocks
+        Stock nvidia = new Stock("NVDA", "NVIDIA Corporation", "Semiconductor company", "Technology", "Semiconductors",
+                                java.math.BigDecimal.valueOf(465.80), null);
+        nvidia.setPreviousClose(java.math.BigDecimal.valueOf(462.10));
+        stockRepository.save(nvidia);
+
+        Stock meta = new Stock("META", "Meta Platforms Inc.", "Social media company", "Technology", "Internet Services",
+                              java.math.BigDecimal.valueOf(485.20), null);
+        meta.setPreviousClose(java.math.BigDecimal.valueOf(482.80));
+        stockRepository.save(meta);
+
+        Stock netflix = new Stock("NFLX", "Netflix Inc.", "Streaming company", "Communication Services", "Entertainment",
+                                java.math.BigDecimal.valueOf(495.40), null);
+        netflix.setPreviousClose(java.math.BigDecimal.valueOf(492.10));
+        stockRepository.save(netflix);
+
+        System.out.println("Sample stocks created with realistic prices: AAPL, GOOGL, MSFT, AMZN, TSLA, NVDA, META, NFLX");
     }
 }

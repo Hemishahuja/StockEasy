@@ -1,12 +1,12 @@
 package com.example.stockeasy.repo;
 
-import com.example.stockeasy.domain.Portfolio;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import com.example.stockeasy.domain.Portfolio;
 
 /**
  * PortfolioRepository interface for Portfolio entity persistence operations.
@@ -47,4 +47,9 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
      * Find portfolio entry by user ID and stock ID
      */
     List<Portfolio> findByUserIdAndStockId(Long userId, Long stockId);
+    
+    /**
+     * Delete all portfolio entries for a user (for reset operations)
+     */
+    void deleteByUserId(Long userId);
 }

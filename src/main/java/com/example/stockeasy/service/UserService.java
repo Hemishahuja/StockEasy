@@ -95,4 +95,18 @@ public class UserService implements UserDetailsService {
     public BigDecimal getPortfolioValue(Long userId) {
         return BigDecimal.valueOf(portfolioRepository.calculatePortfolioValue(userId));
     }
+    
+    /**
+     * Reset user's cash balance to initial amount (for reset operations)
+     */
+    public BigDecimal resetUserCashBalance(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        BigDecimal initialBalance = new BigDecimal("100000.00");
+        user.setCashBalance(initialBalance);
+        userRepository.save(user);
+        
+        return initialBalance;
+    }
 }

@@ -147,4 +147,12 @@ public class TransactionService {
 
         return currentValue.subtract(totalCost);
     }
+    
+    /**
+     * Clear all transactions for a user (for reset operations)
+     */
+    @Transactional
+    public void clearUserTransactions(Long userId) {
+        transactionRepository.deleteByUserId(userId);
+    }
 }
