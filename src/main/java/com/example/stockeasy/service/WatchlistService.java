@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * WatchlistService for watchlist management operations.
- * Handles watchlist management, price alerts, and notification processing.
+ * Handles watchlist mangemnt, price alerts, and notification processing.
  */
 @Service
 public class WatchlistService {
