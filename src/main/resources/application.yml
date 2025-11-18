@@ -75,7 +75,7 @@ app:
     max-watchlist-items: 20
     max-portfolio-items: 50
     market-data-refresh-interval: 300000 # 5 minutes in milliseconds
-    default-fallback-price: 150.00 # Default price if no market data is available
+    default-fallback-price: 185.75 # Default price if no market data is available (set to AAPL price as baseline)
 
 # Alpha Vantage API Configuration
 alpha-vantage:

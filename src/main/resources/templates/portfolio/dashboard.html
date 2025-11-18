@@ -129,6 +129,41 @@
             </div>
         </div>
 
+<<<<<<< Updated upstream
+=======
+        <!-- Change Balance Section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="alert alert-info border-info">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-wallet fa-2x me-3 text-info"></i>
+                        <div class="flex-grow-1">
+                            <h5 class="alert-heading mb-1">Change Starting Balance</h5>
+                            <p class="mb-2">Set a custom starting balance for your portfolio. This will update your current cash balance.</p>
+                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#changeBalanceModal">
+                                <i class="fas fa-dollar-sign me-1"></i>Change Balance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-warning border-warning">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3 text-warning"></i>
+                        <div class="flex-grow-1">
+                            <h5 class="alert-heading mb-1">Reset Portfolio</h5>
+                            <p class="mb-2">Clear all holdings and transaction history, restoring your cash balance to $100,000. This action cannot be undone.</p>
+                            <button class="btn btn-warning text-dark btn-sm" data-bs-toggle="modal" data-bs-target="#resetModal">
+                                <i class="fas fa-redo me-1"></i>Reset Portfolio
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+>>>>>>> Stashed changes
         <!-- Portfolio Holdings -->
         <div class="row">
             <div class="col-12">
@@ -310,6 +345,118 @@
         </div>
     </div>
 
+<<<<<<< Updated upstream
+=======
+    <!-- Change Balance Modal -->
+    <div class="modal fade" id="changeBalanceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-dollar-sign me-2"></i>Change Starting Balance
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Set your custom starting balance</strong>
+                        <p class="mt-2 mb-0">This will update your current cash balance to the amount you specify. This is useful for simulating different starting amounts for your investment journey.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Current Balance</label>
+                        <input type="text" class="form-control" id="currentBalance" readonly
+                               th:value="'$' + ${user?.cashBalance != null ? #numbers.formatDecimal(user.cashBalance, 1, 2) : '0.00'}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">New Starting Balance</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="newBalance" min="0.01" step="0.01" 
+                                   placeholder="100000.00" required>
+                        </div>
+                        <div class="form-text">
+                            Enter the amount you want as your starting balance (minimum $0.01)
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Confirmation</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="confirmBalanceChange">
+                            <label class="form-check-label" for="confirmBalanceChange">
+                                I understand this will change my current cash balance to the new amount
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <small><strong>Note:</strong> This change affects only your cash balance. Your stock holdings remain unchanged.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-info" id="confirmBalanceChangeBtn" disabled>
+                        <i class="fas fa-dollar-sign me-1"></i>Update Balance
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Portfolio Modal -->
+    <div class="modal fade" id="resetModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Reset Portfolio Confirmation
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>This action cannot be undone!</strong>
+                    </div>
+                    
+                    <p class="lead">Are you sure you want to reset your portfolio?</p>
+                    
+                    <div class="mb-3">
+                        <h6>What will be reset:</h6>
+                        <ul class="list-unstyled ms-3">
+                            <li><i class="fas fa-minus-circle text-danger me-2"></i>All stock holdings will be removed</li>
+                            <li><i class="fas fa-minus-circle text-danger me-2"></i>All transaction history will be deleted</li>
+                            <li><i class="fas fa-plus-circle text-success me-2"></i>Cash balance will be restored to $100,000.00</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <input type="checkbox" id="confirmResetCheckbox" class="form-check-input me-2">
+                            I understand this action cannot be undone
+                        </label>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small>This reset functionality is designed for testing and experimentation purposes.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning text-dark" id="confirmResetBtn" disabled>
+                        <i class="fas fa-redo me-1"></i>Reset Portfolio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+>>>>>>> Stashed changes
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script th:inline="javascript">
         // Stock data for lookup
@@ -420,6 +567,179 @@
             });
         }, 5000);
 
+<<<<<<< Updated upstream
+=======
+        // Change Balance modal functionality
+        document.getElementById('confirmBalanceChange').addEventListener('change', function() {
+            document.getElementById('confirmBalanceChangeBtn').disabled = !this.checked;
+        });
+
+        document.getElementById('confirmBalanceChangeBtn').addEventListener('click', function() {
+            const balanceBtn = this;
+            const originalText = balanceBtn.innerHTML;
+            
+            // Disable button and show loading state
+            balanceBtn.disabled = true;
+            balanceBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+            
+            const newBalance = parseFloat(document.getElementById('newBalance').value);
+            
+            if (!newBalance || newBalance <= 0) {
+                showToast('danger', 'Please enter a valid balance amount.');
+                balanceBtn.disabled = false;
+                balanceBtn.innerHTML = originalText;
+                return;
+            }
+
+            // Create balance change request
+            const balanceRequest = {
+                userId: /*[[${user?.id}]]*/ null,
+                newBalance: newBalance,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Make API call to change balance
+            fetch('/portfolio/change-balance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(balanceRequest)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    showToast('success', `Balance updated successfully! Your new cash balance is $${data.newBalance?.toFixed(2) || newBalance.toFixed(2)}.`);
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('changeBalanceModal'));
+                    modal.hide();
+                    
+                    // Reset checkbox
+                    document.getElementById('confirmBalanceChange').checked = false;
+                    document.getElementById('confirmBalanceChangeBtn').disabled = true;
+                    document.getElementById('newBalance').value = '';
+                    
+                    // Refresh the page to show updated balance
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    // Show error message
+                    showToast('danger', data.message || 'Failed to update balance. Please try again.');
+                    balanceBtn.disabled = false;
+                    balanceBtn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Balance change error:', error);
+                showToast('danger', 'An error occurred while updating balance. Please try again.');
+                balanceBtn.disabled = false;
+                balanceBtn.innerHTML = originalText;
+            });
+        });
+
+        // Reset modal functionality
+        document.getElementById('confirmResetCheckbox').addEventListener('change', function() {
+            document.getElementById('confirmResetBtn').disabled = !this.checked;
+        });
+
+        document.getElementById('confirmResetBtn').addEventListener('click', function() {
+            const resetBtn = this;
+            const originalText = resetBtn.innerHTML;
+            
+            // Disable button and show loading state
+            resetBtn.disabled = true;
+            resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Resetting...';
+            
+            // Create reset request
+            const resetRequest = {
+                userId: /*[[${user?.id}]]*/ null,
+                confirmReset: true,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Make API call to reset portfolio
+            fetch('/reset/portfolio', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(resetRequest)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    showToast('success', 'Portfolio reset successful! Your cash balance has been restored to $100,000.00.');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('resetModal'));
+                    modal.hide();
+                    
+                    // Reset checkbox
+                    document.getElementById('confirmResetCheckbox').checked = false;
+                    document.getElementById('confirmResetBtn').disabled = true;
+                    
+                    // Refresh the page to show updated portfolio state
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    // Show error message
+                    showToast('danger', data.message || 'Failed to reset portfolio. Please try again.');
+                    resetBtn.disabled = false;
+                    resetBtn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Reset error:', error);
+                showToast('danger', 'An error occurred while resetting portfolio. Please try again.');
+                resetBtn.disabled = false;
+                resetBtn.innerHTML = originalText;
+            });
+        });
+
+        // Function to show toast notifications
+        function showToast(type, message) {
+            const toastContainer = document.querySelector('.toast-container') || document.createElement('div');
+            if (!toastContainer.classList.contains('toast-container')) {
+                toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+                document.body.appendChild(toastContainer);
+            }
+            
+            const toastId = 'toast-' + Date.now();
+            const toastElement = document.createElement('div');
+            toastElement.className = `toast show`;
+            toastElement.setAttribute('role', 'alert');
+            toastElement.setAttribute('id', toastId);
+            toastElement.style.zIndex = '1050';
+            toastElement.innerHTML = `
+                <div class="toast-header bg-${type === 'success' ? 'success' : 'danger'} text-white">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                    <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">${message}</div>
+            `;
+            
+            toastContainer.appendChild(toastElement);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                toastElement.classList.remove('show');
+                setTimeout(() => {
+                    if (toastElement.parentNode) {
+                        toastElement.parentNode.removeChild(toastElement);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+>>>>>>> Stashed changes
         // Debug logging
         console.log('Available stocks loaded:', availableStocks.length);
         console.log('Portfolio items loaded:', portfolioData.length);

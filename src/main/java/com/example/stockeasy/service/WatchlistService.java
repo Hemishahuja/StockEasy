@@ -1,12 +1,13 @@
 package com.example.stockeasy.service;
 
-import com.example.stockeasy.domain.Watchlist;
-import com.example.stockeasy.repo.WatchlistRepository;
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.List;
+import com.example.stockeasy.domain.Watchlist;
+import com.example.stockeasy.repo.WatchlistRepository;
 
 /**
  * WatchlistService for watchlist management operations.
@@ -20,8 +21,25 @@ public class WatchlistService {
     
     public Watchlist addToWatchlist(Long userId, Long stockId) {
         Watchlist watchlist = new Watchlist();
-        // In a real implementation, you would get user and stock from repositories
-        // For now, we'll set them directly
+        // Mock user and stock objects since we don't have full repository services yet
+        // In a real implementation, you would fetch these from UserRepository and StockRepository
+        
+        // Create mock user object
+        com.example.stockeasy.domain.User user = new com.example.stockeasy.domain.User();
+        user.setId(userId);
+        user.setFirstName("Demo");
+        user.setLastName("User");
+        user.setEmail("demo@example.com");
+        
+        // Create mock stock object
+        com.example.stockeasy.domain.Stock stock = new com.example.stockeasy.domain.Stock();
+        stock.setId(stockId);
+        // The stock symbol/name would be fetched from the database in a real implementation
+        
+        watchlist.setUser(user);
+        watchlist.setStock(stock);
+        watchlist.setAlertEnabled(false); // Default to alerts disabled
+        
         return watchlistRepository.save(watchlist);
     }
     

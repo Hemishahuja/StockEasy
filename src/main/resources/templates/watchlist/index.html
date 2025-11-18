@@ -2,11 +2,52 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+<<<<<<< Updated upstream
     <title>StockEasy – Watchlist</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+=======
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockEasy - Watchlist</title>
+>>>>>>> Stashed changes
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+            color: #007bff !important;
+            transition: all 0.3s ease;
+        }
+        .navbar-brand:hover {
+            color: #0056b3 !important;
+            transform: scale(1.05);
+        }
+        .watchlist-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+        }
+        .watchlist-card {
+            transition: transform 0.2s;
+            border: 1px solid #e9ecef;
+        }
+        .watchlist-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .stock-symbol {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .stock-name {
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body>
+<<<<<<< Updated upstream
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="/">StockEasy</a>
@@ -20,10 +61,67 @@
                 <li class="nav-item"><a class="nav-link" href="/portfolio/dashboard">Portfolio</a></li>
                 <li class="nav-item"><a class="nav-link active" href="/watchlist">Watchlist</a></li>
             </ul>
+=======
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line"></i> StockEasy
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/stocks">Stocks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/portfolio/dashboard">Portfolio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/watchlist">Watchlist</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i>
+                            <span th:text="${user?.firstName ?: 'User'}"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/users/1">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Watchlist Header -->
+    <div class="watchlist-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-eye me-2"></i>Watchlist</h1>
+                    <p class="mb-0">Monitor your favorite stocks and track market movements</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/stocks" class="btn btn-light">
+                        <i class="fas fa-plus me-2"></i>Add Stocks
+                    </a>
+                </div>
+            </div>
+>>>>>>> Stashed changes
         </div>
     </div>
-</nav>
 
+<<<<<<< Updated upstream
 <div class="container mt-4">
 
     <!-- Optional messages -->
@@ -116,7 +214,213 @@
         </div>
     </div>
 </div>
+=======
+    <div class="container">
+        <!-- Empty State -->
+        <div class="text-center py-5" th:if="${#lists.isEmpty(watchlistItems)}">
+            <i class="fas fa-eye-slash fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted mb-2">Your Watchlist is Empty</h4>
+            <p class="text-muted mb-4">Add stocks to your watchlist to monitor their performance and stay updated on price movements.</p>
+            <a href="/stocks" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Explore Stocks
+            </a>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Watchlist Items -->
+        <div th:if="${not #lists.isEmpty(watchlistItems)}">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="mb-3">Watched Stocks</h3>
+                    <div class="row">
+                        <div class="col-md-6 mb-3" th:each="item : ${watchlistItems}">
+                            <div class="card watchlist-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="stock-symbol" th:text="${item.stock.symbol}">AAPL</h5>
+                                            <p class="stock-name" th:text="${item.stock.companyName}">Apple Inc.</p>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="price-display" th:text="'$' + ${item.stock.currentPrice != null ? #numbers.formatDecimal(item.stock.currentPrice, 1, 2) : '0.00'}">
+                                                $0.00
+                                            </div>
+                                            <div class="price-change mt-1">
+                                                <span th:if="${item.stock.priceChangePercent != null}"
+                                                      th:class="${item.stock.priceChangePercent > 0 ? 'text-success' : 'text-danger'}"
+                                                      th:text="${(item.stock.priceChangePercent > 0 ? '+' : '') + #numbers.formatDecimal(item.stock.priceChangePercent, 1, 2) + '%'}">
+                                                    0.00%
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-primary btn-sm">
+                                                <i class="fas fa-chart-line me-1"></i>View Details
+                                            </button>
+                                            <button class="btn btn-outline-success btn-sm">
+                                                <i class="fas fa-shopping-cart me-1"></i>Buy
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm"
+                                                    th:data-watchlist-id="${item.id}"
+                                                    onclick="removeFromWatchlistAjax(this)">
+                                                <i class="fas fa-eye-slash me-1"></i>Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Extract current user ID from the page context
+        function extractUserId() {
+            // Try to get user ID from the profile link in navigation
+            const profileLink = document.querySelector('a[href^="/users/"]');
+            if (profileLink) {
+                const href = profileLink.getAttribute('href');
+                const userId = href.match(/\/users\/(\d+)/);
+                if (userId && userId[1]) {
+                    return parseInt(userId[1]);
+                }
+            }
+            return null;
+        }
+>>>>>>> Stashed changes
+
+        // Generic AJAX response handler
+        function handleAjaxResponse(response, successMessage, errorMessage) {
+            if (response.ok) {
+                showToast(successMessage || 'Operation completed successfully!');
+            } else {
+                response.text().then(text => {
+                    const errorMsg = text || errorMessage || 'Operation failed!';
+                    showToast(errorMsg);
+                }).catch(() => {
+                    showToast(errorMessage || 'Operation failed!');
+                });
+            }
+        }
+
+        // Remove from watchlist via AJAX
+        function removeFromWatchlistAjax(button) {
+            const watchlistId = button.getAttribute('data-watchlist-id');
+            const userId = extractUserId();
+            
+            if (!watchlistId || !userId) {
+                showToast('Please login to manage watchlist.');
+                return;
+            }
+
+            // Confirm deletion
+            if (!confirm('Are you sure you want to remove this stock from your watchlist?')) {
+                return;
+            }
+
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Removing...';
+            button.disabled = true;
+            button.classList.remove('btn-outline-danger');
+            button.classList.add('btn-danger');
+            
+            fetch(`/watchlist/remove/${watchlistId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                handleAjaxResponse(response, 'Stock removed from watchlist successfully!', 'Failed to remove stock from watchlist');
+                
+                if (response.ok) {
+                    // Remove the entire card from the DOM
+                    const card = button.closest('.card');
+                    if (card) {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.8)';
+                        
+                        setTimeout(() => {
+                            card.remove();
+                            
+                            // Check if watchlist is now empty
+                            const remainingCards = document.querySelectorAll('.watchlist-card');
+                            if (remainingCards.length === 0) {
+                                // Show empty state
+                                const emptyState = document.querySelector('.text-center.py-5');
+                                if (emptyState) {
+                                    emptyState.style.display = 'block';
+                                }
+                            }
+                        }, 300);
+                    }
+                }
+                
+                return response;
+            })
+            .then(() => {
+                // Reset button state after 2 seconds (only if still exists)
+                setTimeout(() => {
+                    const resetButton = document.querySelector(`[data-watchlist-id="${watchlistId}"]`);
+                    if (resetButton && resetButton.disabled) {
+                        resetButton.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Remove';
+                        resetButton.disabled = false;
+                        resetButton.classList.remove('btn-danger');
+                        resetButton.classList.add('btn-outline-danger');
+                    }
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error removing from watchlist:', error);
+                showToast('Network error occurred');
+                button.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Remove';
+                button.disabled = false;
+                button.classList.remove('btn-danger');
+                button.classList.add('btn-outline-danger');
+            });
+        }
+
+        // Toast notification
+        function showToast(message) {
+            // Create toast element if it doesn't exist
+            let toastEl = document.getElementById('liveToast');
+            if (!toastEl) {
+                const toastContainer = document.createElement('div');
+                toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+                toastContainer.style.zIndex = '11';
+                
+                toastEl = document.createElement('div');
+                toastEl.className = 'toast';
+                toastEl.role = 'alert';
+                toastEl.innerHTML = `
+                    <div class="toast-header">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong class="me-auto">Success</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body" id="toastMessage">
+                        Stock removed from watchlist successfully!
+                    </div>
+                `;
+                
+                toastContainer.appendChild(toastEl);
+                document.body.appendChild(toastContainer);
+            }
+            
+            const toastMessage = document.getElementById('toastMessage') || toastEl.querySelector('.toast-body');
+            if (toastMessage) {
+                toastMessage.textContent = message;
+            }
+            
+            // Show the toast
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+    </script>
 </body>
 </html>
