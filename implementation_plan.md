@@ -1,57 +1,68 @@
 # Implementation Plan
 
-[Overview]
+## Fix Thymeleaf Template JavaScript Expression Issues
 
-The goal is to combine the stocks listing page and market overview page into a single unified page that displays both stock search/filtering functionality and live market data with refresh capabilities.
+The stock page is showing a whitelabel error due to incorrect Thymeleaf expression handling in JavaScript onclick attributes. This plan addresses the immediate template errors while implementing proper AJAX integration with existing backend endpoints and user context extraction.
 
-The stocks page currently provides a static list of stocks with search and filters, while the dashboard has a market overview section with real-time price updates via API. By merging these features, users will have a comprehensive stock market page that combines browsing and real-time monitoring without needing separate navigation.
+## Types
 
-[Types]
+No new type definitions required. The implementation will use existing Stock, User, and Watchlist domain models with their current field structures.
 
-No new type system changes are required since all existing domain models (Stock, MarketData) are already suitable for the combined functionality.
+## Files
 
-[Files]
+**Existing files to be modified:**
+- `src/main/resources/templates/stocks/list.html` - Fix Thymeleaf expressions in onclick attributes and add proper JavaScript implementation
+- `src/main/java/com/example/stockeasy/web/WatchlistController.java` - Add REST endpoint for AJAX watchlist operations
+- `src/main/java/com/example/stockeasy/web/PortfolioController.java` - Add REST endpoint for AJAX buy operations
 
-Files to be modified include the stocks list template to add market overview section and live price update script, and the dashboard controller to remove or redirect the market endpoint.
+**Configuration updates:**
+- No configuration file changes required
 
-- Modify `src/main/resources/templates/stocks/list.html` to add market overview header section above the stock list, including refresh buttons and live price display
-- Copy market update JavaScript from `src/main/resources/templates/dashboard/index.html` and adapt for stocks page context
-- Modify `src/main/java/com/example/stockeasy/web/DashboardController.java` to change or remove the /market endpoint since market functionality will be in stocks page
-- Update navigation in templates if necessary to reflect combined page
+## Functions
 
-[Functions]
+**New functions in list.html:**
+- `addToWatchlistAjax(button, stockId)` - AJAX function to add stock to watchlist with proper error handling
+- `quickBuyAjax(button, stockId)` - AJAX function to initiate stock purchase with user context
+- `extractUserId()` - Helper function to get current user ID from template context
+- `handleAjaxResponse(response, successMessage, errorMessage)` - Generic AJAX response handler
 
-No new functions needed; existing controller methods and service calls will be reused.
+**Modified functions:**
+- `addToWatchlist()` - Replace with `addToWatchlistAjax()`
+- `quickBuy()` - Replace with `quickBuyAjax()`
 
-- Use existing StockController.getAllStocks() for the stock list
-- Use existing StockService.getActiveStocks() for market data cards
-- Reuse API endpoints in StockController for live market data refresh
+**Backend REST endpoints to add:**
+- `POST /api/watchlist/add` - AJAX endpoint for adding stocks to watchlist
+- `POST /api/portfolio/buy` - AJAX endpoint for initiating stock purchases
 
-[Classes]
+## Classes
 
-No new classes are needed; existing controller and service classes provide all required functionality.
+**No new classes required.**
 
-- StockController: Already has API endpoints for market data refresh
-- MarketDataService: Provides live price fetching and caching
-- StockService: Supplies stock listings
+**Modified classes:**
+- `WatchlistController` - Add `@PostMapping("/api/add")` method with JSON response
+- `PortfolioController` - Add `@PostMapping("/api/buy")` method with JSON response
 
-[Dependencies]
+## Dependencies
 
-No new dependencies are required as the existing Spring Boot stack with Thymeleaf templates supports all needed features.
+No new dependencies required. The implementation uses existing Spring Boot, Thymeleaf, and Bootstrap dependencies already present in the project.
 
-[Testing]
+## Testing
 
-Testing will focus on validating the combined page loads correctly, live price updates work, and search/filter functionality remains intact.
+**Template validation:**
+- Verify Thymeleaf expressions render correctly without whitelabel errors
+- Test JavaScript functions with valid and invalid stock IDs
+- Confirm user ID extraction from session context
 
-- Manual testing of page load and stock listing display
-- Verify API endpoints for price refresh return correct data
-- Test search and filter functionality after combining features
+**Integration testing:**
+- Test AJAX calls to new REST endpoints
+- Verify success/error toast notifications display properly
+- Confirm existing backend functionality remains intact
 
-[Implementation Order]
+## Implementation Order
 
-1. Add market overview section to stocks/list.html above the existing stock list
-2. Copy and adapt the live price update JavaScript from dashboard/index.html
-3. Test the page loads and basic functionality works
-4. Modify DashboardController /market endpoint to redirect to /stocks or remove it
-5. Update any navigation links that pointed to /market
-6. Test live price refresh functionality integrates properly with stock list
+1. **Fix immediate Thymeleaf template errors** - Replace problematic onclick expressions with data attributes
+2. **Add AJAX JavaScript functions** - Implement proper frontend handlers with error handling
+3. **Create REST API endpoints** - Add JSON endpoints for watchlist and buy operations
+4. **Integrate user context extraction** - Implement user ID extraction from Thymeleaf context
+5. **Test template rendering** - Verify no whitelabel errors and proper JavaScript execution
+6. **Test full integration** - Verify AJAX calls work with backend endpoints
