@@ -11,7 +11,7 @@ import com.example.stockeasy.repo.WatchlistRepository;
 
 /**
  * WatchlistService for watchlist management operations.
- * Handles watchlist management, price alerts, and notification processing.
+ * Handles watchlist mangemnt, price alerts, and notification processing.
  */
 @Service
 public class WatchlistService {
