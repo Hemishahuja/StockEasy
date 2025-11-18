@@ -59,4 +59,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
      * Find transactions by user ID and stock ID
      */
     List<Transaction> findByUserIdAndStockId(Long userId, Long stockId);
+    
+    /**
+     * Delete all transactions for a user (for reset operations)
+     */
+    void deleteByUserId(Long userId);
 }

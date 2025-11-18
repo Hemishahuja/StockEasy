@@ -123,4 +123,11 @@ public class PortfolioService {
     public List<Portfolio> getPortfolioDiversification(Long userId) {
         return portfolioRepository.findByUserId(userId);
     }
+    
+    /**
+     * Delete all portfolio entries for a user (for reset operations)
+     */
+    public void deleteUserPortfolio(Long userId) {
+        portfolioRepository.deleteByUserId(userId);
+    }
 }
