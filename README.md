@@ -17,33 +17,33 @@
 ---
 
 
-##  Features and motivation 
+## Features and motivation
 StockEasy is a learning tool for practicing stock trading without real money. It simulates live-like prices, lets you buy/sell, track your portfolio, and review your decisions. The goal is to help students learn concepts such as orders, P/L, risk, and watchlists in a safe, classroom-friendly app. It’s built with Spring Boot so it’s easy to run locally and deploy for demos.
 
-###  Core Trading Features
+### Core Trading Features
 - Real-time Stock Tracking - Monitor stock prices with market data
 - Portfolio Management- Track holdings, performance, and profit/loss
 - Transaction History- Complete buy/sell transaction logging
 - Watchlists- Create and monitor custom stock watchlists
 - User Management- Secure authentication and user profiles
 
-###  Security & Reliability
+### Security & Reliability
 - Spring Security- Session-based authentication and authorization
 - Input Validation- Comprehensive validation using Bean Validation
 - Actuator Endpoints - Health monitoring and metrics
 - Error Handling - Global exception handling with custom responses
 
-###  User Experience
--  Responsive UI- Bootstrap-powered responsive web interface
+### User Experience
+- Responsive UI- Bootstrap-powered responsive web interface
 - Mobile-Friendly - Optimized for all device sizes
 - Real-time Updates - Dynamic price updates and portfolio calculations
 - Modern Design - Clean, intuitive user interface
 
 ---
 
-##  Architecture
+## Architecture
 
-###  Project Structure
+### Project Structure
 ```
 src/
 ├── main/
@@ -60,7 +60,7 @@ src/
     └── java/com/example/stockeasy/
 ```
 
-###  Technology Stack
+### Technology Stack
 | Component | Technology | Purpose |
 |-----------|------------|---------|
 | **Backend** | Spring Boot 3.5.0 | Application framework |
@@ -74,15 +74,15 @@ src/
 
 ---
 
-##  Quick Start
+## Quick Start
 
-###  Prerequisites
+### Prerequisites
 - **Java 21** (JDK)
 - **Maven 3.9+**
 - **PostgreSQL 14+** (for production)
 - **Git** (for cloning)
 
-###  Setup Instructions
+### Setup Instructions
 
 1. **Clone the repository**
    ```bash
@@ -113,9 +113,9 @@ src/
 
 ---
 
-##  Configuration
+## Configuration
 
-###  Environment Profiles
+### Environment Profiles
 
 The application supports multiple Spring profiles:
 
@@ -125,7 +125,7 @@ The application supports multiple Spring profiles:
 | **test** | Testing configuration | `./mvnw test -Ptest` |
 | **prod** | Production configuration | Default profile |
 
-###  Database Configuration
+### Database Configuration
 
 ```yaml
 # src/main/resources/application.yml
@@ -137,28 +137,19 @@ spring:
     driver-class-name: org.postgresql.Driver
 ```
 
-###  Security Configuration
 
-```yaml
-# JWT and security settings
-spring:
-  security:
-    jwt:
-      secret: ${JWT_SECRET:your-secret-key}
-      expiration: 86400000 # 24 hours
-```
 
 ---
 
-##  API Documentation
+## API Documentation
 
-###  Swagger UI
+### Swagger UI
 Access interactive API documentation at:
 ```
 http://localhost:8080/swagger-ui.html
 ```
 
-###  Key API Endpoints
+### Key API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -179,35 +170,35 @@ http://localhost:8080/swagger-ui.html
 | `/watchlist` | GET | User watchlist |
 | `/watchlist/add` | POST | Add stock to watchlist |
 
-###  Example API Request
+### Example API Request
 
 ```bash
 curl -X GET "http://localhost:8080/stocks/api/latest/AAPL?interval=5min" \
      -H "Accept: application/json"
 ```
-
+## Demo Video
+https://youtu.be/k7lC1UT4qBE
 ---
 
+## Testing
 
-
-###  Test Coverage
+### Test Coverage
 - **Unit Tests**: JUnit 5 + Mockito
 - **Integration Tests**: Spring Boot Test
 - **Security Tests**: Spring Security Test
 - **Database Tests**: H2 in-memory database
 
+---
 
-Contribution
+## Contributing
 
 We welcome small, focused PRs.
 
-How to contribute
+### How to contribute
 
 Fork & branch: feat/<short-name> or fix/<short-name>.
 
 Run tests: ./mvnw test (keep coverage for changed code).
-
-
 
 Commit messages: short and actionable (e.g., feat: add buy/sell endpoints).
 
@@ -229,7 +220,8 @@ enhancement – new features
 
 documentation – README/docs fixes
 
-Code of Conduct
+## Code of Conduct
+
 Be respectful and constructive. Assume good intent, keep reviews kind and specific.
 <div align="center">
 
