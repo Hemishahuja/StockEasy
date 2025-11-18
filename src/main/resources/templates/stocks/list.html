@@ -83,14 +83,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/watchlist">Watchlist</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/market">Market</a>
-                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user"></i> <span th:text="${user?.firstName ?? 'User'}"></span>
+                            <i class="fas fa-user"></i> <span th:text="${user?.firstName ?: 'User'}"></span>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/users/1">Profile</a></li>
@@ -114,7 +111,7 @@
                 <div class="col-md-4 text-end">
                     <div class="stock-card p-3">
                         <h5 class="text-muted mb-1">Total Stocks</h5>
-                        <h2 class="mb-0" th:text="${stocks?.size() ?? 0}"></h2>
+                        <h2 class="mb-0" th:text="${stocks?.size() ?: 0}"></h2>
                     </div>
                 </div>
             </div>
@@ -186,7 +183,7 @@
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3>Available Stocks</h3>
-                    <small class="text-muted">Showing <span id="stockCount" th:text="${stocks?.size() ?? 0}"></span> stocks</small>
+                    <small class="text-muted">Showing <span id="stockCount" th:text="${stocks?.size() ?: 0}"></span> stocks</small>
                 </div>
 
                 <div th:if="${#lists.isEmpty(stocks)}">
@@ -197,61 +194,65 @@
                     </div>
                 </div>
 
-                <div th:if="${not #lists.isEmpty(stocks)}" class="row">
-                    <div class="col-lg-3 col-md-6 mb-4" th:each="stock : ${stocks}">
-                        <div class="stock-card card h-100">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div>
-                                        <h5 class="card-title mb-1" th:text="${stock?.symbol}"></h5>
-                                        <p class="card-text text-muted small" th:text="${stock?.companyName}"></p>
-                                    </div>
-                                    <span class="badge bg-secondary" th:text="${stock?.sector}"></span>
-                                </div>
-                                
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <h4 class="mb-0" th:text="'$' + ${stock?.currentPrice != null ? #numbers.formatDecimal(stock.currentPrice, 1, 2) : '0.00'}"></h4>
-                                    </div>
-                                    <div>
-                                        <small th:if="${stock?.isPriceUp()}" class="stock-up">
-                                            <i class="fas fa-arrow-up"></i>
-                                        </small>
-                                        <small th:if="${stock?.isPriceDown()}" class="stock-down">
-                                            <i class="fas fa-arrow-down"></i>
-                                        </small>
-                                        <small th:if="${stock?.priceChangePercent != null}" 
-                                               th:class="${stock?.priceChangePercent > 0 ? 'stock-up' : 'stock-down'}"
-                                               th:text="${stock?.priceChangePercent > 0 ? '+' : ''} + ${#numbers.formatDecimal(stock.priceChangePercent, 1, 2) + '%'}"></small>
-                                    </div>
-                                </div>
-                                
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <small class="text-muted">Volume</small>
-                                        <div th:text="${stock?.volume != null ? #numbers.formatDecimal(stock.volume, 0, 0) : '0'}"></div>
-                                    </div>
-                                    <div>
-                                        <small class="text-muted">Market Cap</small>
-                                        <div th:text="${stock?.marketCap != null ? '$' + #numbers.formatDecimal(stock.marketCap, 1, 0) : '$0'}"></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-3 d-flex gap-2">
-                                    <a th:href="@{'/stocks/' + ${stock?.id}}" class="btn btn-sm btn-outline-primary flex-fill">
-                                        <i class="fas fa-info-circle me-1"></i>Details
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-success flex-fill" onclick="addToWatchlist(this, ${stock?.id})">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary flex-fill" onclick="quickBuy(this, ${stock?.id})">
-                                        <i class="fas fa-shopping-cart"></i>
-                                    </button>
-                                </div>
+        <div th:if="${not #lists.isEmpty(stocks)}" class="row">
+            <div class="col-lg-3 col-md-6 mb-4" th:each="stock : ${stocks}">
+                <div class="stock-card card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="card-title mb-1" th:text="${stock?.symbol}"></h5>
+                                <p class="card-text text-muted small" th:text="${stock?.companyName}"></p>
                             </div>
+                            <span class="badge bg-secondary" th:text="${stock?.sector}"></span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h4 class="mb-0" th:text="'$' + ${stock?.currentPrice != null ? #numbers.formatDecimal(stock.currentPrice, 1, 2) : '0.00'}"></h4>
+                            </div>
+                            <div>
+                                <small th:if="${stock?.isPriceUp()}" class="stock-up">
+                                    <i class="fas fa-arrow-up"></i>
+                                </small>
+                                <small th:if="${stock?.isPriceDown()}" class="stock-down">
+                                    <i class="fas fa-arrow-down"></i>
+                                </small>
+                                        <small th:if="${stock?.priceChangePercent != null}"
+                                               th:class="${stock?.priceChangePercent > 0 ? 'stock-up' : 'stock-down'}"
+                                               th:text="${(stock?.priceChangePercent > 0 ? '+' : '-') + #numbers.formatDecimal((stock?.priceChangePercent > 0 ? stock?.priceChangePercent : -stock?.priceChangePercent), 1, 2) + '%'}"></small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">Volume</small>
+                                <div th:text="${stock?.volume != null ? #numbers.formatDecimal(stock.volume, 0, 0) : '0'}"></div>
+                            </div>
+                            <div>
+                                <small class="text-muted">Market Cap</small>
+                                <div th:text="${stock?.marketCap != null ? '$' + #numbers.formatDecimal(stock.marketCap, 1, 0) : '$0'}"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 d-flex gap-2">
+                            <a th:href="@{'/stocks/' + ${stock?.id}}" class="btn btn-sm btn-outline-primary flex-fill">
+                                <i class="fas fa-info-circle me-1"></i>Details
+                            </a>
+                            <button class="btn btn-sm btn-outline-success flex-fill" 
+                                    th:data-stock-id="${stock?.id}"
+                                    onclick="addToWatchlistAjax(this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary flex-fill" 
+                                    th:data-stock-id="${stock?.id}"
+                                    onclick="quickBuyAjax(this)">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
             </div>
         </div>
 
@@ -317,27 +318,140 @@
             }, 1500);
         });
 
-        // Add to watchlist
-        function addToWatchlist(button, stockId) {
+        // Extract current user ID from the page context
+        function extractUserId() {
+            // Try to get user ID from the profile link in navigation
+            const profileLink = document.querySelector('a[href^="/users/"]');
+            if (profileLink) {
+                const href = profileLink.getAttribute('href');
+                const userId = href.match(/\/users\/(\d+)/);
+                if (userId && userId[1]) {
+                    return parseInt(userId[1]);
+                }
+            }
+            return null;
+        }
+
+        // Generic AJAX response handler
+        function handleAjaxResponse(response, successMessage, errorMessage) {
+            if (response.ok) {
+                showToast(successMessage || 'Operation completed successfully!');
+            } else {
+                response.text().then(text => {
+                    const errorMsg = text || errorMessage || 'Operation failed!';
+                    showToast(errorMsg);
+                }).catch(() => {
+                    showToast(errorMessage || 'Operation failed!');
+                });
+            }
+        }
+
+        // Add to watchlist via AJAX
+        function addToWatchlistAjax(button) {
+            const stockId = button.getAttribute('data-stock-id');
+            const userId = extractUserId();
+            
+            if (!stockId || !userId) {
+                showToast('Please login to add stocks to watchlist.');
+                return;
+            }
+
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             button.disabled = true;
             
-            // Simulate API call
-            setTimeout(() => {
-                button.innerHTML = '<i class="fas fa-check"></i>';
-                showToast('Stock added to watchlist!');
+            fetch('/api/watchlist/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    stockId: parseInt(stockId)
+                })
+            })
+            .then(response => {
+                handleAjaxResponse(response, 'Stock added to watchlist successfully!', 'Failed to add stock to watchlist');
                 
+                if (response.ok) {
+                    // Change button to indicate it's in watchlist
+                    button.classList.remove('btn-outline-success');
+                    button.classList.add('btn-success');
+                    button.querySelector('i').className = 'fas fa-check';
+                }
+                
+                return response;
+            })
+            .then(() => {
+                // Reset button state after 2 seconds
                 setTimeout(() => {
                     button.innerHTML = '<i class="fas fa-eye"></i>';
                     button.disabled = false;
+                    // Reset button styling
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-success');
                 }, 2000);
-            }, 1000);
+            })
+            .catch(error => {
+                console.error('Error adding to watchlist:', error);
+                showToast('Network error occurred');
+                button.innerHTML = '<i class="fas fa-eye"></i>';
+                button.disabled = false;
+            });
         }
 
-        // Quick buy
-        function quickBuy(button, stockId) {
-            // Redirect to buy modal or page
-            window.location.href = '/portfolio/dashboard#buyModal';
+        // Quick buy via AJAX
+        function quickBuyAjax(button) {
+            const stockId = button.getAttribute('data-stock-id');
+            const userId = extractUserId();
+            
+            if (!stockId || !userId) {
+                showToast('Please login to purchase stocks.');
+                return;
+            }
+
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
+            // First, get stock symbol for the buy operation
+            fetch(`/stocks/api/stock/${stockId}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Failed to get stock information');
+                })
+                .then(stockData => {
+                    // Now make the buy request
+                    return fetch('/api/portfolio/buy', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userId: userId,
+                            stockId: parseInt(stockId),
+                            stockSymbol: stockData.symbol || 'UNKNOWN',
+                            quantity: 1 // Default to 1 share for quick buy
+                        })
+                    });
+                })
+                .then(response => {
+                    handleAjaxResponse(response, 'Stock purchase initiated successfully!', 'Failed to purchase stock');
+                    return response;
+                })
+                .then(() => {
+                    // Reset button state after 2 seconds
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-shopping-cart"></i>';
+                        button.disabled = false;
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error purchasing stock:', error);
+                    showToast('Network error occurred');
+                    button.innerHTML = '<i class="fas fa-shopping-cart"></i>';
+                    button.disabled = false;
+                });
         }
 
         // Toast notification

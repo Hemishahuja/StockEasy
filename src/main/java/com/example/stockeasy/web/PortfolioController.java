@@ -153,6 +153,46 @@ public class PortfolioController {
     }
 
     /**
+     * REST API endpoint to buy stock via AJAX
+     * Returns JSON response for frontend AJAX handling
+     */
+    @PostMapping("/api/buy")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<java.util.Map<String, Object>> buyStockAjax(
+            @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, Object> request) {
+        try {
+            Long userId = ((Number) request.get("userId")).longValue();
+            Long stockId = ((Number) request.get("stockId")).longValue();
+            String stockSymbol = (String) request.get("stockSymbol");
+            Integer quantity = ((Number) request.get("quantity")).intValue();
+            
+            // Get stock by symbol
+            Stock stock = stockService.getStockBySymbol(stockSymbol.toUpperCase());
+            
+            if (stock == null) {
+                java.util.Map<String, Object> response = new java.util.HashMap<>();
+                response.put("success", false);
+                response.put("message", "Stock not found for symbol: " + stockSymbol);
+                return org.springframework.http.ResponseEntity.badRequest().body(response);
+            }
+            
+            Transaction transaction = transactionService.buyStock(userId, stock.getId(), quantity);
+            
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", true);
+            response.put("message", "Stock purchase initiated successfully! Purchased " + quantity + " shares of " + stockSymbol.toUpperCase());
+            
+            return org.springframework.http.ResponseEntity.ok(response);
+        } catch (Exception e) {
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to purchase stock: " + e.getMessage());
+            
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
      * Execute sell stock transaction
      */
     @PostMapping("/sell")

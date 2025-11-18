@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.stockeasy.domain.MarketData;
 import com.example.stockeasy.domain.Stock;
+import com.example.stockeasy.domain.User;
 import com.example.stockeasy.service.MarketDataService;
 import com.example.stockeasy.service.StockService;
+import com.example.stockeasy.service.UserService;
 
 
 
@@ -34,6 +36,9 @@ public class StockController {
 
     @Autowired
     private MarketDataService marketDataService;
+
+    @Autowired
+    private UserService userService;
     
     /**
      * Display all active stocks
@@ -42,6 +47,22 @@ public class StockController {
     public String getAllStocks(Model model) {
         List<Stock> stocks = stockService.getActiveStocks();
         model.addAttribute("stocks", stocks);
+        
+        // Add user information for JavaScript to extract user ID
+        try {
+            // Get current authenticated user
+            org.springframework.security.core.Authentication authentication = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.isAuthenticated()) {
+                String username = authentication.getName();
+                User user = (User) userService.loadUserByUsername(username);
+                model.addAttribute("user", user);
+            }
+        } catch (Exception e) {
+            // User is not authenticated or error occurred
+            model.addAttribute("user", null);
+        }
+        
         return "stocks/list";
     }
     
@@ -196,6 +217,35 @@ public class StockController {
             String errorMessage = String.format("Failed to clear cache for symbol %s: %s",
                                               symbol.toUpperCase(), e.getMessage());
             return ResponseEntity.badRequest().body(errorMessage);
+        }
+    }
+
+    /**
+     * REST API endpoint to get stock data by ID.
+     * Returns stock information for AJAX operations.
+     */
+    @GetMapping("/api/stock/{stockId}")
+    @ResponseBody
+    public ResponseEntity<Stock> getStockById(@PathVariable Long stockId) {
+        try {
+            // Get stock from repository using the existing getStockBySymbol method pattern
+            // Since we need to get by ID, we'll need to modify the approach
+            // For now, let's use a simpler approach that works with existing methods
+            
+            // Get all active stocks and find the one with matching ID
+            List<Stock> allStocks = stockService.getActiveStocks();
+            Stock targetStock = allStocks.stream()
+                .filter(stock -> stock.getId().equals(stockId))
+                .findFirst()
+                .orElse(null);
+                
+            if (targetStock != null) {
+                return ResponseEntity.ok(targetStock);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

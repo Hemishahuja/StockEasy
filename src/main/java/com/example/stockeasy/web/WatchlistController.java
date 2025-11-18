@@ -52,6 +52,34 @@ public class WatchlistController {
             return "watchlist/error";
         }
     }
+
+    /**
+     * REST API endpoint to add stock to watchlist via AJAX
+     * Returns JSON response for frontend AJAX handling
+     */
+    @PostMapping("/api/add")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<java.util.Map<String, Object>> addToWatchlistAjax(
+            @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, Object> request) {
+        try {
+            Long userId = ((Number) request.get("userId")).longValue();
+            Long stockId = ((Number) request.get("stockId")).longValue();
+            
+            watchlistService.addToWatchlist(userId, stockId);
+            
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", true);
+            response.put("message", "Stock added to watchlist successfully!");
+            
+            return org.springframework.http.ResponseEntity.ok(response);
+        } catch (Exception e) {
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to add stock to watchlist: " + e.getMessage());
+            
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
+        }
+    }
     
     /**
      * Remove stock from watchlist
