@@ -498,24 +498,6 @@ At a high level, the app uses a layered MVC design. Controllers translate HTTP r
 - **Sprint 2 Goal:** Full database integration via `WatchlistRepository` and proper JPA entity linking between users and watched stocks
 - **Impact:** Current watchlist is for demo/UI testing only; data does not persist
 
-### Help Page User Context
-- **Current State:** Help page displays "User" instead of actual user's first name
-- **Sprint 2 Fix:** Inject `UserService` into `HelpController` and add authenticated user to model (following pattern from `DashboardController`, `StockController`, etc.)
-- **Code Pattern Required:**
-```java
-@Autowired
-private UserService userService;
-
-@GetMapping("/help")
-public String showHelpPage(Model model) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String username = authentication.getName();
-    User user = (User) userService.loadUserByUsername(username);
-    model.addAttribute("user", user);
-    return "help/index";
-}
-```
-
 ### Navigation Consistency
 - **Current State:** Help page previously had different navbar structure (right-aligned, limited links)
 - **Sprint 2 Status:** ✅ **RESOLVED** - Navigation standardized across all pages with full menu and user dropdown
