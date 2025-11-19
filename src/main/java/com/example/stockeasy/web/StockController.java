@@ -21,8 +21,6 @@ import com.example.stockeasy.service.MarketDataService;
 import com.example.stockeasy.service.StockService;
 import com.example.stockeasy.service.UserService;
 
-
-
 /**
  * StockController for stock management.
  * Handles stock search, display, and operations.
@@ -39,20 +37,65 @@ public class StockController {
 
     @Autowired
     private UserService userService;
-    
+
     /**
      * Display all active stocks
      */
+    /**
+     * Display all active stocks with optional filters
+     */
     @GetMapping
-    public String getAllStocks(Model model) {
+    public String getAllStocks(@RequestParam(required = false) String sector,
+            @RequestParam(required = false) String priceRange,
+            Model model) {
         List<Stock> stocks = stockService.getActiveStocks();
+
+        // Apply Sector Filter
+        if (sector != null && !sector.isEmpty() && !sector.equals("all")) {
+            stocks = stocks.stream()
+                    .filter(s -> s.getSector() != null && s.getSector().equalsIgnoreCase(sector))
+                    .toList();
+        }
+
+        // Apply Price Range Filter
+        if (priceRange != null && !priceRange.isEmpty()) {
+            stocks = stocks.stream()
+                    .filter(s -> {
+                        BigDecimal price = s.getCurrentPrice();
+                        if (price == null)
+                            return false;
+
+                        switch (priceRange) {
+                            case "0-50":
+                                return price.compareTo(BigDecimal.valueOf(50)) < 0;
+                            case "50-100":
+                                return price.compareTo(BigDecimal.valueOf(50)) >= 0
+                                        && price.compareTo(BigDecimal.valueOf(100)) <= 0;
+                            case "100-200":
+                                return price.compareTo(BigDecimal.valueOf(100)) > 0
+                                        && price.compareTo(BigDecimal.valueOf(200)) <= 0;
+                            case "200+":
+                                return price.compareTo(BigDecimal.valueOf(200)) > 0;
+                            case "gainers":
+                                return s.isPriceUp();
+                            case "losers":
+                                return s.isPriceDown();
+                            default:
+                                return true;
+                        }
+                    })
+                    .toList();
+        }
+
         model.addAttribute("stocks", stocks);
-        
+        model.addAttribute("selectedSector", sector);
+        model.addAttribute("selectedPriceRange", priceRange);
+
         // Add user information for JavaScript to extract user ID
         try {
             // Get current authenticated user
-            org.springframework.security.core.Authentication authentication = 
-                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder
+                    .getContext().getAuthentication();
             if (authentication != null && authentication.isAuthenticated()) {
                 String username = authentication.getName();
                 User user = (User) userService.loadUserByUsername(username);
@@ -62,10 +105,10 @@ public class StockController {
             // User is not authenticated or error occurred
             model.addAttribute("user", null);
         }
-        
+
         return "stocks/list";
     }
-    
+
     /**
      * Search stocks by symbol
      */
@@ -75,7 +118,7 @@ public class StockController {
         model.addAttribute("stock", stock);
         return "stocks/detail";
     }
-    
+
     /**
      * Display stock details
      */
@@ -85,7 +128,7 @@ public class StockController {
         model.addAttribute("stock", stock);
         return "stocks/detail";
     }
-    
+
     /**
      * Display stocks by sector
      */
@@ -96,7 +139,7 @@ public class StockController {
         model.addAttribute("sector", sector);
         return "stocks/list";
     }
-    
+
     /**
      * Display stocks by industry
      */
@@ -107,7 +150,7 @@ public class StockController {
         model.addAttribute("industry", industry);
         return "stocks/list";
     }
-    
+
     /**
      * Display stocks above a certain price
      */
@@ -118,7 +161,7 @@ public class StockController {
         model.addAttribute("price", price);
         return "stocks/list";
     }
-    
+
     /**
      * Display stocks below a certain price
      */
@@ -143,11 +186,11 @@ public class StockController {
         try {
             List<MarketData> marketDataList = marketDataService.refreshMarketDataSync(symbol.toUpperCase(), interval);
             String message = String.format("Successfully refreshed %d data points for symbol %s",
-                                         marketDataList.size(), symbol.toUpperCase());
+                    marketDataList.size(), symbol.toUpperCase());
             return ResponseEntity.ok(message);
         } catch (Exception e) {
             String errorMessage = String.format("Failed to refresh data for symbol %s: %s",
-                                              symbol.toUpperCase(), e.getMessage());
+                    symbol.toUpperCase(), e.getMessage());
             return ResponseEntity.badRequest().body(errorMessage);
         }
     }
@@ -167,7 +210,8 @@ public class StockController {
             if (marketData != null) {
                 // Ensure we have valid data
                 if (marketData.getClosePrice() == null) {
-                    marketData.setClosePrice(marketData.getOpenPrice() != null ? marketData.getOpenPrice() : BigDecimal.ZERO);
+                    marketData.setClosePrice(
+                            marketData.getOpenPrice() != null ? marketData.getOpenPrice() : BigDecimal.ZERO);
                 }
                 return ResponseEntity.ok(marketData);
             } else {
@@ -196,7 +240,8 @@ public class StockController {
             @RequestParam(defaultValue = "5min") String interval) {
 
         try {
-            List<MarketData> marketDataList = marketDataService.fetchIntradayDataFromApiSync(symbol.toUpperCase(), interval);
+            List<MarketData> marketDataList = marketDataService.fetchIntradayDataFromApiSync(symbol.toUpperCase(),
+                    interval);
             return ResponseEntity.ok(marketDataList);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -215,7 +260,7 @@ public class StockController {
             return ResponseEntity.ok(message);
         } catch (Exception e) {
             String errorMessage = String.format("Failed to clear cache for symbol %s: %s",
-                                              symbol.toUpperCase(), e.getMessage());
+                    symbol.toUpperCase(), e.getMessage());
             return ResponseEntity.badRequest().body(errorMessage);
         }
     }
@@ -231,14 +276,14 @@ public class StockController {
             // Get stock from repository using the existing getStockBySymbol method pattern
             // Since we need to get by ID, we'll need to modify the approach
             // For now, let's use a simpler approach that works with existing methods
-            
+
             // Get all active stocks and find the one with matching ID
             List<Stock> allStocks = stockService.getActiveStocks();
             Stock targetStock = allStocks.stream()
-                .filter(stock -> stock.getId().equals(stockId))
-                .findFirst()
-                .orElse(null);
-                
+                    .filter(stock -> stock.getId().equals(stockId))
+                    .findFirst()
+                    .orElse(null);
+
             if (targetStock != null) {
                 return ResponseEntity.ok(targetStock);
             } else {

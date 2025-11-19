@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,16 +12,20 @@
             transition: transform 0.2s;
             height: 100%;
         }
+
         .stock-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
+
         .stock-up {
             color: #28a745;
         }
+
         .stock-down {
             color: #dc3545;
         }
+
         .stock-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -28,37 +33,44 @@
             margin-bottom: 2rem;
             border-radius: 0 0 20px 20px;
         }
+
         .search-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
             margin-bottom: 2rem;
         }
+
         .filter-chip {
             transition: all 0.2s;
             cursor: pointer;
         }
+
         .filter-chip:hover {
             transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
+
         .filter-chip.active {
             background: #667eea;
             color: white;
         }
+
         .navbar-brand {
             font-weight: bold;
             color: #007bff !important;
             transition: all 0.3s ease;
         }
+
         .navbar-brand:hover {
             color: #0056b3 !important;
             transform: scale(1.05);
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -91,7 +103,9 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/users/1">Profile</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item" href="/logout">Logout</a></li>
                         </ul>
                     </li>
@@ -128,7 +142,8 @@
                         <span class="input-group-text">
                             <i class="fas fa-search"></i>
                         </span>
-                        <input type="text" class="form-control" placeholder="Symbol or company name..." id="searchInput">
+                        <input type="text" class="form-control" placeholder="Symbol or company name..."
+                            id="searchInput">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -183,7 +198,8 @@
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3>Available Stocks</h3>
-                    <small class="text-muted">Showing <span id="stockCount" th:text="${stocks?.size() ?: 0}"></span> stocks</small>
+                    <small class="text-muted">Showing <span id="stockCount" th:text="${stocks?.size() ?: 0}"></span>
+                        stocks</small>
                 </div>
 
                 <div th:if="${#lists.isEmpty(stocks)}">
@@ -194,65 +210,70 @@
                     </div>
                 </div>
 
-        <div th:if="${not #lists.isEmpty(stocks)}" class="row">
-            <div class="col-lg-3 col-md-6 mb-4" th:each="stock : ${stocks}">
-                <div class="stock-card card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <h5 class="card-title mb-1" th:text="${stock?.symbol}"></h5>
-                                <p class="card-text text-muted small" th:text="${stock?.companyName}"></p>
-                            </div>
-                            <span class="badge bg-secondary" th:text="${stock?.sector}"></span>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div>
-                                <h4 class="mb-0" th:text="'$' + ${stock?.currentPrice != null ? #numbers.formatDecimal(stock.currentPrice, 1, 2) : '0.00'}"></h4>
-                            </div>
-                            <div>
-                                <small th:if="${stock?.isPriceUp()}" class="stock-up">
-                                    <i class="fas fa-arrow-up"></i>
-                                </small>
-                                <small th:if="${stock?.isPriceDown()}" class="stock-down">
-                                    <i class="fas fa-arrow-down"></i>
-                                </small>
+                <div th:if="${not #lists.isEmpty(stocks)}" class="row">
+                    <div class="col-lg-3 col-md-6 mb-4" th:each="stock : ${stocks}">
+                        <div class="stock-card card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="card-title mb-1" th:text="${stock?.symbol}"></h5>
+                                        <p class="card-text text-muted small" th:text="${stock?.companyName}"></p>
+                                    </div>
+                                    <span class="badge bg-secondary" th:text="${stock?.sector}"></span>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <h4 class="mb-0"
+                                            th:text="'$' + ${stock?.currentPrice != null ? #numbers.formatDecimal(stock.currentPrice, 1, 2) : '0.00'}">
+                                        </h4>
+                                    </div>
+                                    <div>
+                                        <small th:if="${stock?.isPriceUp()}" class="stock-up">
+                                            <i class="fas fa-arrow-up"></i>
+                                        </small>
+                                        <small th:if="${stock?.isPriceDown()}" class="stock-down">
+                                            <i class="fas fa-arrow-down"></i>
+                                        </small>
                                         <small th:if="${stock?.priceChangePercent != null}"
-                                               th:class="${stock?.priceChangePercent > 0 ? 'stock-up' : 'stock-down'}"
-                                               th:text="${(stock?.priceChangePercent > 0 ? '+' : '-') + #numbers.formatDecimal((stock?.priceChangePercent > 0 ? stock?.priceChangePercent : -stock?.priceChangePercent), 1, 2) + '%'}"></small>
+                                            th:class="${stock?.priceChangePercent > 0 ? 'stock-up' : 'stock-down'}"
+                                            th:text="${(stock?.priceChangePercent > 0 ? '+' : '-') + #numbers.formatDecimal((stock?.priceChangePercent > 0 ? stock?.priceChangePercent : -stock?.priceChangePercent), 1, 2) + '%'}"></small>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted">Volume</small>
+                                        <div
+                                            th:text="${stock?.volume != null ? #numbers.formatDecimal(stock.volume, 0, 0) : '0'}">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">Market Cap</small>
+                                        <div
+                                            th:text="${stock?.marketCap != null ? '$' + #numbers.formatDecimal(stock.marketCap, 1, 0) : '$0'}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 d-flex gap-2">
+                                    <a th:href="@{'/stocks/' + ${stock?.id}}"
+                                        class="btn btn-sm btn-outline-primary flex-fill">
+                                        <i class="fas fa-info-circle me-1"></i>Details
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-success flex-fill"
+                                        th:data-stock-id="${stock?.id}" onclick="addToWatchlistAjax(this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary flex-fill"
+                                        th:data-stock-id="${stock?.id}" onclick="quickBuyAjax(this)">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <small class="text-muted">Volume</small>
-                                <div th:text="${stock?.volume != null ? #numbers.formatDecimal(stock.volume, 0, 0) : '0'}"></div>
-                            </div>
-                            <div>
-                                <small class="text-muted">Market Cap</small>
-                                <div th:text="${stock?.marketCap != null ? '$' + #numbers.formatDecimal(stock.marketCap, 1, 0) : '$0'}"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3 d-flex gap-2">
-                            <a th:href="@{'/stocks/' + ${stock?.id}}" class="btn btn-sm btn-outline-primary flex-fill">
-                                <i class="fas fa-info-circle me-1"></i>Details
-                            </a>
-                            <button class="btn btn-sm btn-outline-success flex-fill" 
-                                    th:data-stock-id="${stock?.id}"
-                                    onclick="addToWatchlistAjax(this)">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-primary flex-fill" 
-                                    th:data-stock-id="${stock?.id}"
-                                    onclick="quickBuyAjax(this)">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
             </div>
         </div>
 
@@ -280,42 +301,138 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Filter functionality
+        // URL Parameter handling
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Initialize filters from URL
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentSector = getUrlParameter('sector');
+            const currentPriceRange = getUrlParameter('priceRange');
+
+            // Set dropdown values
+            if (currentSector) {
+                const sectorSelect = document.getElementById('sectorFilter');
+                if (sectorSelect) sectorSelect.value = currentSector;
+            }
+
+            if (currentPriceRange) {
+                const priceSelect = document.getElementById('priceFilter');
+                if (priceSelect) priceSelect.value = currentPriceRange;
+            }
+
+            // Set active chip
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+                const filterType = chip.getAttribute('data-filter');
+
+                if (filterType === 'all' && !currentSector && !currentPriceRange) {
+                    chip.classList.add('active');
+                } else if (currentSector && filterType.toLowerCase() === currentSector.toLowerCase()) {
+                    chip.classList.add('active');
+                } else if (currentPriceRange && filterType === currentPriceRange) {
+                    chip.classList.add('active');
+                }
+            });
+        });
+
+        // Apply filters function
+        function applyFilters() {
+            const sector = document.getElementById('sectorFilter').value;
+            const priceRange = document.getElementById('priceFilter').value;
+            const search = document.getElementById('searchInput').value;
+
+            let url = '/stocks?';
+            const params = [];
+
+            if (sector) params.push('sector=' + encodeURIComponent(sector));
+            if (priceRange) params.push('priceRange=' + encodeURIComponent(priceRange));
+            if (search) params.push('search=' + encodeURIComponent(search)); // Note: Controller needs to support search param if not already
+
+            window.location.href = url + params.join('&');
+        }
+
+        // Filter chips
         document.querySelectorAll('.filter-chip').forEach(chip => {
-            chip.addEventListener('click', function() {
-                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                // Here you would implement actual filtering logic
-                showToast('Filter applied: ' + this.textContent.trim());
+            chip.addEventListener('click', function () {
+                const filter = this.getAttribute('data-filter');
+
+                if (filter === 'all') {
+                    window.location.href = '/stocks';
+                    return;
+                }
+
+                // Check if it's a sector or price/type filter
+                const sectors = ['technology', 'healthcare', 'finance', 'energy', 'consumer'];
+
+                if (sectors.includes(filter)) {
+                    // It's a sector
+                    // Capitalize first letter for the parameter
+                    const sectorParam = filter.charAt(0).toUpperCase() + filter.slice(1);
+                    window.location.href = '/stocks?sector=' + encodeURIComponent(sectorParam);
+                } else {
+                    // It's a price range or type (gainers/losers)
+                    window.location.href = '/stocks?priceRange=' + encodeURIComponent(filter);
+                }
             });
         });
 
         // Search functionality
-        document.getElementById('searchInput')?.addEventListener('input', function() {
-            // Implement search logic
-            showToast('Searching for: ' + this.value);
+        let searchTimeout;
+        document.getElementById('searchInput')?.addEventListener('input', function () {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                // For now, just client-side filter or reload? 
+                // Since controller has /search endpoint but it returns detail view, 
+                // maybe we should just reload with a search param if supported, 
+                // or client-side filter the visible cards.
+                // Given the current controller structure, client-side filtering might be smoother for "search"
+                // BUT the requirement implies backend filtering.
+                // The controller has `searchStocks` at /stocks/search but it returns a single stock detail.
+                // Let's do client-side filtering for the search input for now as it's "Search Stocks" on the list page.
+
+                const term = this.value.toLowerCase();
+                const cards = document.querySelectorAll('.stock-card');
+                let visibleCount = 0;
+
+                cards.forEach(card => {
+                    const title = card.querySelector('.card-title').textContent.toLowerCase();
+                    const company = card.querySelector('.card-text').textContent.toLowerCase();
+                    const parentCol = card.closest('.col-lg-3');
+
+                    if (title.includes(term) || company.includes(term)) {
+                        parentCol.style.display = '';
+                        visibleCount++;
+                    } else {
+                        parentCol.style.display = 'none';
+                    }
+                });
+
+                // Update count
+                const countEl = document.getElementById('stockCount');
+                if (countEl) countEl.textContent = visibleCount;
+
+            }, 300);
         });
 
-        // Sector filter
-        document.getElementById('sectorFilter')?.addEventListener('change', function() {
-            // Implement filter logic
-            showToast('Sector filter: ' + this.value);
-        });
+        // Sector filter dropdown
+        document.getElementById('sectorFilter')?.addEventListener('change', applyFilters);
 
-        // Price filter
-        document.getElementById('priceFilter')?.addEventListener('change', function() {
-            // Implement filter logic
-            showToast('Price range: ' + this.value);
-        });
+        // Price filter dropdown
+        document.getElementById('priceFilter')?.addEventListener('change', applyFilters);
 
         // Load more functionality
-        document.getElementById('loadMoreBtn')?.addEventListener('click', function() {
+        document.getElementById('loadMoreBtn')?.addEventListener('click', function () {
             this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading more stocks...';
             // Simulate loading more stocks
             setTimeout(() => {
                 this.innerHTML = '<i class="fas fa-plus me-2"></i>Load More Stocks';
-                showToast('More stocks loaded!');
-            }, 1500);
+                showToast('No more stocks to load.');
+            }, 1000);
         });
 
         // Extract current user ID from the page context
@@ -350,7 +467,7 @@
         function addToWatchlistAjax(button) {
             const stockId = button.getAttribute('data-stock-id');
             const userId = extractUserId();
-            
+
             if (!stockId || !userId) {
                 showToast('Please login to add stocks to watchlist.');
                 return;
@@ -358,7 +475,7 @@
 
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             button.disabled = true;
-            
+
             fetch('/watchlist/api/add', {
                 method: 'POST',
                 headers: {
@@ -369,41 +486,41 @@
                     stockId: parseInt(stockId)
                 })
             })
-            .then(response => {
-                handleAjaxResponse(response, 'Stock added to watchlist successfully!', 'Failed to add stock to watchlist');
-                
-                if (response.ok) {
-                    // Change button to indicate it's in watchlist
-                    button.classList.remove('btn-outline-success');
-                    button.classList.add('btn-success');
-                    button.querySelector('i').className = 'fas fa-check';
-                }
-                
-                return response;
-            })
-            .then(() => {
-                // Reset button state after 2 seconds
-                setTimeout(() => {
+                .then(response => {
+                    handleAjaxResponse(response, 'Stock added to watchlist successfully!', 'Failed to add stock to watchlist');
+
+                    if (response.ok) {
+                        // Change button to indicate it's in watchlist
+                        button.classList.remove('btn-outline-success');
+                        button.classList.add('btn-success');
+                        button.querySelector('i').className = 'fas fa-check';
+                    }
+
+                    return response;
+                })
+                .then(() => {
+                    // Reset button state after 2 seconds
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-eye"></i>';
+                        button.disabled = false;
+                        // Reset button styling
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-outline-success');
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error adding to watchlist:', error);
+                    showToast('Network error occurred');
                     button.innerHTML = '<i class="fas fa-eye"></i>';
                     button.disabled = false;
-                    // Reset button styling
-                    button.classList.remove('btn-success');
-                    button.classList.add('btn-outline-success');
-                }, 2000);
-            })
-            .catch(error => {
-                console.error('Error adding to watchlist:', error);
-                showToast('Network error occurred');
-                button.innerHTML = '<i class="fas fa-eye"></i>';
-                button.disabled = false;
-            });
+                });
         }
 
         // Quick buy via AJAX
         function quickBuyAjax(button) {
             const stockId = button.getAttribute('data-stock-id');
             const userId = extractUserId();
-            
+
             if (!stockId || !userId) {
                 showToast('Please login to purchase stocks.');
                 return;
@@ -411,7 +528,7 @@
 
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             button.disabled = true;
-            
+
             // First, get stock symbol for the buy operation
             fetch(`/stocks/api/stock/${stockId}`)
                 .then(response => {
@@ -459,10 +576,11 @@
             const toastEl = document.getElementById('liveToast');
             const toastMessage = document.getElementById('toastMessage');
             toastMessage.textContent = message;
-            
+
             const toast = new bootstrap.Toast(toastEl);
             toast.show();
         }
     </script>
 </body>
+
 </html>

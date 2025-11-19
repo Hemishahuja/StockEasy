@@ -2,11 +2,8 @@ package com.example.stockeasy.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,21 +13,18 @@ import org.springframework.stereotype.Service;
 
 import com.example.stockeasy.domain.MarketData;
 import com.example.stockeasy.domain.Stock;
-import com.example.stockeasy.exception.AlphaVantageApiException;
 import com.example.stockeasy.repo.MarketDataRepository;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * MarketDataService for market data management operations.
  * Handles market data updates, historical data management, and market analysis.
- * Integrates with Alpha Vantage API for real-time market data.
+ * Integrates with Finnhub API for real-time market data.
  */
 @Service
 public class MarketDataService {
 
     private static final Logger logger = LoggerFactory.getLogger(MarketDataService.class);
-    private static final DateTimeFormatter ALPHA_VANTAGE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     private MarketDataRepository marketDataRepository;
@@ -39,15 +33,13 @@ public class MarketDataService {
     private StockService stockService;
 
     @Autowired
-    private AlphaVantageService alphaVantageService;
+    private FinnhubService finnhubService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    
     @Value("${app.stock.default-fallback-price}")
     private BigDecimal defaultFallbackPrice;
 
-    public MarketData createMarketData(Long stockId, LocalDateTime date, BigDecimal openPrice, BigDecimal highPrice, BigDecimal lowPrice, BigDecimal closePrice, Long volume) {
+    public MarketData createMarketData(Long stockId, LocalDateTime date, BigDecimal openPrice, BigDecimal highPrice,
+            BigDecimal lowPrice, BigDecimal closePrice, Long volume) {
         MarketData marketData = new MarketData();
         // In a real implementation, you would get stock from repository
         // For now, we'll set stock directly
@@ -57,60 +49,60 @@ public class MarketDataService {
         marketData.setLowPrice(lowPrice);
         marketData.setClosePrice(closePrice);
         marketData.setVolume(volume);
-        
+
         return marketDataRepository.save(marketData);
     }
-    
+
     public MarketData updateMarketData(Long marketDataId, BigDecimal newPrice) {
         MarketData marketData = marketDataRepository.findById(marketDataId)
                 .orElseThrow(() -> new RuntimeException("Market data not found"));
-        
+
         marketData.setClosePrice(newPrice);
         return marketDataRepository.save(marketData);
     }
-    
+
     public List<MarketData> getMarketDataForStock(Long stockId) {
         return marketDataRepository.findByStockId(stockId);
     }
-    
+
     public MarketData getLatestMarketDataForStock(Long stockId) {
         return marketDataRepository.findLatestMarketDataByStockId(stockId);
     }
-    
+
     public List<MarketData> getMarketDataForStockInDateRange(Long stockId, LocalDateTime start, LocalDateTime end) {
         return marketDataRepository.findByStockIdAndDateBetween(stockId, start, end);
     }
-    
+
     public List<MarketData> getLatestMarketDataForAllStocks() {
         return marketDataRepository.findLatestMarketDataForAllStocks();
     }
-    
+
     public List<MarketData> getMarketDataForStockOrderedByDateAsc(Long stockId) {
         return marketDataRepository.findMarketDataByStockIdOrderByDateAsc(stockId);
     }
 
     /**
-     * Synchronous version: Fetches intraday market data from Alpha Vantage API.
+     * Synchronous version: Fetches intraday market data from Finnhub API.
      * Falls back to local data if API is unavailable.
      *
-     * @param symbol the stock symbol
+     * @param symbol   the stock symbol
      * @param interval the time interval (1min, 5min, 15min, 30min, 60min)
      * @return List of MarketData entities
      */
     public List<MarketData> fetchIntradayDataFromApiSync(String symbol, String interval) {
         try {
-            // First try to fetch fresh data from Alpha Vantage API
-            List<MarketData> apiData = fetchFromAlphaVantageApiSync(symbol, interval);
+            // First try to fetch fresh data from Finnhub API
+            List<MarketData> apiData = fetchFromFinnhubApiSync(symbol, interval);
             if (!apiData.isEmpty()) {
-                logger.info("Fetched {} fresh data points from Alpha Vantage API for symbol: {}", apiData.size(), symbol);
+                logger.info("Fetched {} fresh data points from Finnhub API for symbol: {}", apiData.size(), symbol);
                 return apiData;
             }
 
             // Fall back to local data if API call was successful but returned no data
             logger.warn("API call failed or returned no data, falling back to local data for symbol: {}", symbol);
             return getLocalDataForSymbol(symbol);
-        } catch (AlphaVantageApiException e) {
-            logger.warn("Alpha Vantage API error for symbol {}, falling back to local data: {}", symbol, e.getMessage());
+        } catch (RuntimeException e) {
+            logger.warn("Finnhub API error for symbol {}, falling back to local data: {}", symbol, e.getMessage());
             return getLocalDataForSymbol(symbol);
         } catch (Exception e) {
             logger.error("Unexpected error fetching data for symbol {}: {}", symbol, e.getMessage());
@@ -121,7 +113,7 @@ public class MarketDataService {
     /**
      * Manually refreshes market data for a specific stock symbol.
      *
-     * @param symbol the stock symbol
+     * @param symbol   the stock symbol
      * @param interval the time interval
      * @return List of MarketData entities
      */
@@ -136,10 +128,10 @@ public class MarketDataService {
 
     /**
      * Gets the latest market data for a symbol from local database.
-     * If no local data exists, attempts to fetch from Alpha Vantage API.
+     * If no local data exists, attempts to fetch from Finnhub API.
      * Falls back to stock's current price if no market data exists.
      *
-     * @param symbol the stock symbol
+     * @param symbol   the stock symbol
      * @param interval the time interval
      * @return Latest MarketData entity with price data
      */
@@ -163,29 +155,32 @@ public class MarketDataService {
                 return marketData;
             }
 
-            // No local data exists, try to fetch from Alpha Vantage API
-            logger.debug("No local market data found for {}, attempting to fetch from Alpha Vantage API", symbol);
+            // No local data exists, try to fetch from Finnhub API
+            logger.debug("No local market data found for {}, attempting to fetch from Finnhub API", symbol);
             try {
-                List<MarketData> apiData = fetchFromAlphaVantageApiSync(symbol, interval);
-                if (!apiData.isEmpty()) {
-                    // Return the most recent data point from API
-                    MarketData latestFromApi = apiData.get(0); // Assuming data is ordered by date descending
-                    logger.info("Fetched latest market data from API for {}: ${}", symbol, latestFromApi.getClosePrice());
+                // For latest data, we can use the Quote endpoint which is lighter
+                MarketData latestFromApi = fetchLatestQuoteFromFinnhubSync(symbol);
+                if (latestFromApi != null) {
+                    logger.info("Fetched latest market data from API for {}: ${}", symbol,
+                            latestFromApi.getClosePrice());
                     return latestFromApi;
                 }
-            } catch (AlphaVantageApiException e) {
-                logger.warn("Failed to fetch market data from Alpha Vantage API for {}: {}", symbol, e.getMessage());
+            } catch (RuntimeException e) {
+                logger.warn("Failed to fetch market data from Finnhub API for {}: {}", symbol, e.getMessage());
                 // Continue to fallback logic
             }
 
-            // If no market data exists anywhere, use the stock's current price instead of fallback
-            logger.warn("No live or historical data found for {}. Using stock's current price instead of fallback.", symbol);
+            // If no market data exists anywhere, use the stock's current price instead of
+            // fallback
+            logger.warn("No live or historical data found for {}. Using stock's current price instead of fallback.",
+                    symbol);
             BigDecimal currentStockPrice = stock.getCurrentPrice();
-            
-            // Only use fallback if stock's current price is zero or null (indicates no proper initialization)
-            BigDecimal effectivePrice = (currentStockPrice != null && currentStockPrice.compareTo(BigDecimal.ZERO) > 0) 
-                ? currentStockPrice 
-                : defaultFallbackPrice;
+
+            // Only use fallback if stock's current price is zero or null (indicates no
+            // proper initialization)
+            BigDecimal effectivePrice = (currentStockPrice != null && currentStockPrice.compareTo(BigDecimal.ZERO) > 0)
+                    ? currentStockPrice
+                    : defaultFallbackPrice;
 
             MarketData syntheticData = new MarketData();
             syntheticData.setStock(stock);
@@ -199,8 +194,10 @@ public class MarketDataService {
 
             // Save the synthetic data to update the stock's current price
             MarketData savedData = marketDataRepository.save(syntheticData);
-            logger.info("Created and saved synthetic market data for {}: ${} (using {} price)", 
-                symbol, effectivePrice, currentStockPrice != null && currentStockPrice.compareTo(BigDecimal.ZERO) > 0 ? "stock's current" : "fallback");
+            logger.info("Created and saved synthetic market data for {}: ${} (using {} price)",
+                    symbol, effectivePrice,
+                    currentStockPrice != null && currentStockPrice.compareTo(BigDecimal.ZERO) > 0 ? "stock's current"
+                            : "fallback");
             return savedData;
 
         } catch (Exception e) {
@@ -216,50 +213,50 @@ public class MarketDataService {
      * @param symbol the stock symbol
      */
     public void clearCacheForSymbol(String symbol) {
-        // This would need to be implemented in CacheService if we want symbol-specific cache clearing
+        // This would need to be implemented in CacheService if we want symbol-specific
+        // cache clearing
         logger.info("Cache clearing requested for symbol: {}", symbol);
     }
 
     /**
-     * Parses Alpha Vantage JSON response and converts to MarketData entities.
+     * Parses Finnhub Candle JSON response and converts to MarketData entities.
      *
-     * @param jsonResponse the JSON response from Alpha Vantage API
-     * @param stock the stock entity
-     * @param interval the time interval
+     * @param jsonResponse the JSON response from Finnhub API
+     * @param stock        the stock entity
      * @return List of MarketData entities
      */
-    private List<MarketData> parseAlphaVantageResponse(JsonNode jsonResponse, Stock stock, String interval) {
+    private List<MarketData> parseFinnhubCandlesResponse(JsonNode jsonResponse, Stock stock) {
         List<MarketData> marketDataList = new ArrayList<>();
 
         try {
-            // Get the time series data - the key format is "Time Series (Xmin)"
-            String timeSeriesKey = "Time Series (" + interval + ")";
-            JsonNode timeSeries = jsonResponse.get(timeSeriesKey);
-
-            if (timeSeries == null) {
-                logger.warn("No time series data found for interval: {}", interval);
+            if (!jsonResponse.has("s") || !"ok".equals(jsonResponse.get("s").asText())) {
+                logger.warn("Finnhub returned no data status: {}",
+                        jsonResponse.has("s") ? jsonResponse.get("s").asText() : "unknown");
                 return marketDataList;
             }
 
-            // Iterate through each timestamp
-            Iterator<Map.Entry<String, JsonNode>> timestamps = timeSeries.fields();
-            while (timestamps.hasNext()) {
-                Map.Entry<String, JsonNode> timestampEntry = timestamps.next();
-                String timestampStr = timestampEntry.getKey();
-                JsonNode priceData = timestampEntry.getValue();
+            JsonNode timestamps = jsonResponse.get("t");
+            JsonNode opens = jsonResponse.get("o");
+            JsonNode highs = jsonResponse.get("h");
+            JsonNode lows = jsonResponse.get("l");
+            JsonNode closes = jsonResponse.get("c");
+            JsonNode volumes = jsonResponse.get("v");
 
+            if (timestamps == null || !timestamps.isArray()) {
+                return marketDataList;
+            }
+
+            for (int i = 0; i < timestamps.size(); i++) {
                 try {
-                    // Parse the timestamp
-                    LocalDateTime dateTime = LocalDateTime.parse(timestampStr, ALPHA_VANTAGE_DATE_FORMAT);
+                    long unixSeconds = timestamps.get(i).asLong();
+                    LocalDateTime dateTime = LocalDateTime.ofEpochSecond(unixSeconds, 0, java.time.ZoneOffset.UTC);
 
-                    // Extract OHLCV data
-                    BigDecimal openPrice = new BigDecimal(priceData.get("1. open").asText());
-                    BigDecimal highPrice = new BigDecimal(priceData.get("2. high").asText());
-                    BigDecimal lowPrice = new BigDecimal(priceData.get("3. low").asText());
-                    BigDecimal closePrice = new BigDecimal(priceData.get("4. close").asText());
-                    Long volume = Long.parseLong(priceData.get("5. volume").asText());
+                    BigDecimal openPrice = new BigDecimal(opens.get(i).asText());
+                    BigDecimal highPrice = new BigDecimal(highs.get(i).asText());
+                    BigDecimal lowPrice = new BigDecimal(lows.get(i).asText());
+                    BigDecimal closePrice = new BigDecimal(closes.get(i).asText());
+                    Long volume = volumes.get(i).asLong();
 
-                    // Create MarketData entity
                     MarketData marketData = new MarketData();
                     marketData.setStock(stock);
                     marketData.setDate(dateTime);
@@ -270,38 +267,58 @@ public class MarketDataService {
                     marketData.setVolume(volume);
 
                     marketDataList.add(marketData);
-
                 } catch (Exception e) {
-                    logger.warn("Failed to parse data point for timestamp {}: {}", timestampStr, e.getMessage());
-                    // Continue with next data point
+                    logger.warn("Failed to parse data point at index {}: {}", i, e.getMessage());
                 }
             }
+
+            // Sort descending by date (newest first)
+            marketDataList.sort((a, b) -> b.getDate().compareTo(a.getDate()));
 
             logger.info("Parsed {} data points for symbol: {}", marketDataList.size(), stock.getSymbol());
 
         } catch (Exception e) {
-            logger.error("Failed to parse Alpha Vantage response: {}", e.getMessage());
+            logger.error("Failed to parse Finnhub response: {}", e.getMessage());
         }
 
         return marketDataList;
     }
 
     /**
-     * Fetches intraday data from Alpha Vantage API synchronously.
+     * Fetches intraday data from Finnhub API synchronously.
      *
-     * @param symbol the stock symbol
+     * @param symbol   the stock symbol
      * @param interval the time interval
      * @return List of MarketData entities
      */
-    private List<MarketData> fetchFromAlphaVantageApiSync(String symbol, String interval) {
+    private List<MarketData> fetchFromFinnhubApiSync(String symbol, String interval) {
         try {
-            logger.debug("Fetching intraday data from Alpha Vantage for symbol: {} with interval: {}", symbol, interval);
+            logger.debug("Fetching intraday data from Finnhub for symbol: {} with interval: {}", symbol, interval);
+
+            // Map interval to Finnhub resolution
+            String resolution = "60"; // Default to 60 minutes
+            if (interval.contains("1min"))
+                resolution = "1";
+            else if (interval.contains("5min"))
+                resolution = "5";
+            else if (interval.contains("15min"))
+                resolution = "15";
+            else if (interval.contains("30min"))
+                resolution = "30";
+            else if (interval.contains("60min"))
+                resolution = "60";
+            else if (interval.contains("D"))
+                resolution = "D";
+
+            // Fetch last 24 hours of data
+            long to = System.currentTimeMillis() / 1000;
+            long from = to - (24 * 60 * 60); // 24 hours ago
 
             // Get the reactive response and block to make it synchronous
-            JsonNode jsonResponse = alphaVantageService.getIntradayTimeSeries(symbol, interval).block();
+            JsonNode jsonResponse = finnhubService.getStockCandles(symbol, resolution, from, to).block();
 
             if (jsonResponse == null) {
-                logger.warn("Received null response from Alpha Vantage API for symbol: {}", symbol);
+                logger.warn("Received null response from Finnhub API for symbol: {}", symbol);
                 return new ArrayList<>();
             }
 
@@ -313,7 +330,7 @@ public class MarketDataService {
             }
 
             // Parse the response and convert to MarketData entities
-            List<MarketData> marketDataList = parseAlphaVantageResponse(jsonResponse, stock, interval);
+            List<MarketData> marketDataList = parseFinnhubCandlesResponse(jsonResponse, stock);
 
             // Save to database
             if (!marketDataList.isEmpty()) {
@@ -329,12 +346,84 @@ public class MarketDataService {
 
             return marketDataList;
 
-        } catch (AlphaVantageApiException e) {
-            logger.error("Alpha Vantage API error for symbol {}: {}", symbol, e.getMessage());
+        } catch (RuntimeException e) {
+            logger.error("Finnhub API error for symbol {}: {}", symbol, e.getMessage());
             throw e; // Re-throw API exceptions
         } catch (Exception e) {
-            logger.error("Unexpected error fetching data from Alpha Vantage for symbol {}: {}", symbol, e.getMessage());
+            logger.error("Unexpected error fetching data from Finnhub for symbol {}: {}", symbol, e.getMessage());
             return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Fetches latest quote from Finnhub API synchronously.
+     */
+    private MarketData fetchLatestQuoteFromFinnhubSync(String symbol) {
+        try {
+            JsonNode jsonResponse = finnhubService.getQuote(symbol).block();
+
+            if (jsonResponse == null)
+                return null;
+
+            Stock stock = stockService.getStockBySymbol(symbol);
+            if (stock == null)
+                return null;
+
+            BigDecimal currentPrice = new BigDecimal(jsonResponse.get("c").asText());
+            BigDecimal highPrice = new BigDecimal(jsonResponse.get("h").asText());
+            BigDecimal lowPrice = new BigDecimal(jsonResponse.get("l").asText());
+            BigDecimal openPrice = new BigDecimal(jsonResponse.get("o").asText());
+            long timestamp = jsonResponse.get("t").asLong();
+
+            MarketData marketData = new MarketData();
+            marketData.setStock(stock);
+            marketData.setDate(LocalDateTime.ofEpochSecond(timestamp, 0, java.time.ZoneOffset.UTC));
+            marketData.setClosePrice(currentPrice);
+            marketData.setOpenPrice(openPrice);
+            marketData.setHighPrice(highPrice);
+            marketData.setLowPrice(lowPrice);
+            marketData.setVolume(0L); // Quote endpoint doesn't always return volume
+
+            // Save and update stock price
+            MarketData savedData = marketDataRepository.save(marketData);
+            stockService.updateStockPrice(stock.getId(), currentPrice);
+
+            return savedData;
+
+        } catch (Exception e) {
+            logger.error("Failed to fetch quote for {}: {}", symbol, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Fetches and updates company profile data (market cap, sector, etc.) for a
+     * stock.
+     */
+    public void fetchCompanyProfileSync(String symbol) {
+        try {
+            JsonNode jsonResponse = finnhubService.getCompanyProfile2(symbol).block();
+            if (jsonResponse == null)
+                return;
+
+            Stock stock = stockService.getStockBySymbol(symbol);
+            if (stock == null)
+                return;
+
+            if (jsonResponse.has("marketCapitalization")) {
+                // Finnhub returns market cap in millions
+                BigDecimal marketCapMillions = new BigDecimal(jsonResponse.get("marketCapitalization").asText());
+                stock.setMarketCap(marketCapMillions.multiply(BigDecimal.valueOf(1_000_000)));
+            }
+            if (jsonResponse.has("finnhubIndustry")) {
+                stock.setIndustry(jsonResponse.get("finnhubIndustry").asText());
+            }
+
+            stockService.saveStock(stock);
+            logger.info("Updated company profile for {}", symbol);
+
+        } catch (Exception e) {
+            logger.error("Failed to fetch company profile for {}: {}", symbol, e.getMessage());
         }
     }
 

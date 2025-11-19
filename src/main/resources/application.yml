@@ -77,12 +77,12 @@ app:
     market-data-refresh-interval: 300000 # 5 minutes in milliseconds
     default-fallback-price: 185.75 # Default price if no market data is available (set to AAPL price as baseline)
 
-# Alpha Vantage API Configuration
-alpha-vantage:
-  api-key: 5GCX2Q43JNOM112F # Replace with your actual API key
-  base-url: "https://www.alphavantage.co"
+# Finnhub API Configuration
+finnhub:
+  api-key: d4etkopr01ql649g3650d4etkopr01ql649g365g
+  base-url: "https://finnhub.io/api/v1"
   timeout: 30s
-  rate-limit-delay: 12000 # 12 seconds between calls to stay under 5 calls/minute limit
+  rate-limit-delay: 1000 # 1 second delay (60 calls/minute limit)
   max-retries: 3
   cache-ttl: 15m
 
@@ -104,10 +104,10 @@ spring:
   thymeleaf:
     cache: false
 
-# Development Alpha Vantage Configuration
-alpha-vantage:
-  api-key: "5GCX2Q43JNOM112F" # Use personal key for development
-  cache-ttl: 5m # Shorter cache for development
+# Development Finnhub Configuration
+finnhub:
+  api-key: d4etkopr01ql649g3650d4etkopr01ql649g365g
+  cache-ttl: 5m
 
 ---
 # Test Profile
@@ -130,11 +130,11 @@ spring:
   thymeleaf:
     cache: false
 
-# Test Alpha Vantage Configuration
-alpha-vantage:
-  api-key: "test" # Use test key for testing
-  cache-ttl: 1m # Very short cache for testing
-  max-retries: 1 # Fewer retries for faster tests
+# Test Finnhub Configuration
+finnhub:
+  api-key: "test"
+  cache-ttl: 1m
+  max-retries: 1
 
 ---
 # Production Profile
@@ -153,8 +153,8 @@ spring:
   thymeleaf:
     cache: true
 
-# Production Alpha Vantage Configuration
-alpha-vantage:
-  api-key: ${ALPHA_VANTAGE_API_KEY} # Must be set as environment variable
-  cache-ttl: 30m # Longer cache for production
-  rate-limit-delay: 15000 # More conservative rate limiting for production
+# Production Finnhub Configuration
+finnhub:
+  api-key: ${FINNHUB_API_KEY} # Must be set as environment variable
+  cache-ttl: 30m
+  rate-limit-delay: 1000

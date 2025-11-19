@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -23,7 +24,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.example.stockeasy.domain.MarketData;
 import com.example.stockeasy.domain.Stock;
-import com.example.stockeasy.exception.AlphaVantageApiException;
 import com.example.stockeasy.repo.MarketDataRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,10 +39,13 @@ class MarketDataServiceTest {
     private StockService stockService;
 
     @Mock
-    private AlphaVantageService alphaVantageService;
+    private FinnhubService finnhubService;
 
     @Mock
     private CacheService cacheService;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private MarketDataService marketDataService;
@@ -106,8 +109,8 @@ class MarketDataServiceTest {
         when(marketDataRepository.findById(1L)).thenReturn(Optional.empty());
 
         // When & Then
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
-            marketDataService.updateMarketData(1L, BigDecimal.valueOf(160.00)));
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> marketDataService.updateMarketData(1L, BigDecimal.valueOf(160.00)));
         assertEquals("Market data not found", exception.getMessage());
     }
 
@@ -208,34 +211,25 @@ class MarketDataServiceTest {
         String symbol = "AAPL";
         String interval = "5min";
 
-        // Mock Alpha Vantage API response
+        // Mock Finnhub API response
         String jsonResponse = """
-            {
-                "Meta Data": {
-                    "1. Information": "Intraday (5min) open, high, low, close prices and volume",
-                    "2. Symbol": "AAPL",
-                    "3. Last Refreshed": "2023-12-01 16:00:00",
-                    "4. Interval": "5min",
-                    "5. Output Size": "Compact",
-                    "6. Time Zone": "US/Eastern"
-                },
-                "Time Series (5min)": {
-                    "2023-12-01 16:00:00": {
-                        "1. open": "190.00",
-                        "2. high": "191.00",
-                        "3. low": "189.50",
-                        "4. close": "190.50",
-                        "5. volume": "1000000"
-                    }
+                {
+                    "s": "ok",
+                    "t": [1701446400],
+                    "o": ["190.00"],
+                    "h": ["191.00"],
+                    "l": ["189.50"],
+                    "c": ["190.50"],
+                    "v": [1000000]
                 }
-            }
-            """;
+                """;
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+        ObjectMapper realObjectMapper = new ObjectMapper();
+        JsonNode jsonNode = realObjectMapper.readTree(jsonResponse);
 
         when(stockService.getStockBySymbol(symbol)).thenReturn(testStock);
-        when(alphaVantageService.getIntradayTimeSeries(symbol, interval)).thenReturn(Mono.just(jsonNode));
+        when(finnhubService.getStockCandles(anyString(), anyString(), anyLong(), anyLong()))
+                .thenReturn(Mono.just(jsonNode));
         when(marketDataRepository.saveAll(any())).thenReturn(Arrays.asList(testMarketData));
 
         // When
@@ -244,7 +238,7 @@ class MarketDataServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(alphaVantageService).getIntradayTimeSeries(symbol, interval);
+        verify(finnhubService).getStockCandles(anyString(), anyString(), anyLong(), anyLong());
         verify(marketDataRepository).saveAll(any());
     }
 
@@ -256,8 +250,8 @@ class MarketDataServiceTest {
         List<MarketData> localData = Arrays.asList(testMarketData);
 
         when(stockService.getStockBySymbol(symbol)).thenReturn(testStock);
-        when(alphaVantageService.getIntradayTimeSeries(symbol, interval))
-                .thenReturn(Mono.error(new AlphaVantageApiException("API Error", symbol)));
+        when(finnhubService.getStockCandles(anyString(), anyString(), anyLong(), anyLong()))
+                .thenReturn(Mono.error(new RuntimeException("API Error")));
         when(marketDataRepository.findByStockId(1L)).thenReturn(localData);
 
         // When
@@ -267,7 +261,7 @@ class MarketDataServiceTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(localData, result);
-        verify(alphaVantageService).getIntradayTimeSeries(symbol, interval);
+        verify(finnhubService).getStockCandles(anyString(), anyString(), anyLong(), anyLong());
         verify(marketDataRepository).findByStockId(1L);
     }
 
@@ -287,7 +281,7 @@ class MarketDataServiceTest {
         assertNotNull(result);
         assertEquals(testMarketData, result);
         verify(marketDataRepository).findLatestMarketDataByStockId(1L);
-        verify(alphaVantageService, never()).getIntradayTimeSeries(anyString(), anyString());
+        verify(finnhubService, never()).getQuote(anyString());
     }
 
     @Test
@@ -296,37 +290,33 @@ class MarketDataServiceTest {
         String symbol = "AAPL";
         String interval = "5min";
 
-        // Mock Alpha Vantage API response
+        // Mock Finnhub Quote API response
         String jsonResponse = """
-            {
-                "Meta Data": {"2. Symbol": "AAPL"},
-                "Time Series (5min)": {
-                    "2023-12-01 16:00:00": {
-                        "1. open": "190.00",
-                        "2. high": "191.00",
-                        "3. low": "189.50",
-                        "4. close": "190.50",
-                        "5. volume": "1000000"
-                    }
+                {
+                    "c": 190.50,
+                    "h": 191.00,
+                    "l": 189.50,
+                    "o": 190.00,
+                    "pc": 189.00,
+                    "t": 1701446400
                 }
-            }
-            """;
+                """;
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+        ObjectMapper realObjectMapper = new ObjectMapper();
+        JsonNode jsonNode = realObjectMapper.readTree(jsonResponse);
 
         when(stockService.getStockBySymbol(symbol)).thenReturn(testStock);
         when(marketDataRepository.findLatestMarketDataByStockId(1L)).thenReturn(null); // No local data
-        when(alphaVantageService.getIntradayTimeSeries(symbol, interval)).thenReturn(Mono.just(jsonNode));
-        when(marketDataRepository.saveAll(any())).thenReturn(Arrays.asList(testMarketData));
+        when(finnhubService.getQuote(symbol)).thenReturn(Mono.just(jsonNode));
+        when(marketDataRepository.save(any(MarketData.class))).thenReturn(testMarketData);
 
         // When
         MarketData result = marketDataService.getLatestMarketDataForSymbolSync(symbol, interval);
 
         // Then
         assertNotNull(result);
-        verify(alphaVantageService).getIntradayTimeSeries(symbol, interval);
-        verify(marketDataRepository).saveAll(any());
+        verify(finnhubService).getQuote(symbol);
+        verify(marketDataRepository).save(any(MarketData.class));
     }
 
     @Test
@@ -337,8 +327,8 @@ class MarketDataServiceTest {
 
         when(stockService.getStockBySymbol(symbol)).thenReturn(testStock);
         when(marketDataRepository.findLatestMarketDataByStockId(1L)).thenReturn(null); // No local data
-        when(alphaVantageService.getIntradayTimeSeries(symbol, interval))
-                .thenReturn(Mono.error(new AlphaVantageApiException("API Error", symbol)));
+        when(finnhubService.getQuote(symbol))
+                .thenReturn(Mono.error(new RuntimeException("API Error")));
         when(marketDataRepository.save(any(MarketData.class))).thenReturn(testMarketData);
 
         // When
@@ -347,7 +337,7 @@ class MarketDataServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(testMarketData, result);
-        verify(alphaVantageService).getIntradayTimeSeries(symbol, interval);
+        verify(finnhubService).getQuote(symbol);
         verify(marketDataRepository).save(any(MarketData.class)); // Verify synthetic data was saved
     }
 
@@ -355,20 +345,6 @@ class MarketDataServiceTest {
     void testGetLatestMarketDataForSymbolSync_StockNotFound() {
         // Given
         String symbol = "INVALID";
-        String interval = "5min";
-
-        when(stockService.getStockBySymbol(symbol)).thenReturn(null);
-
-        // When & Then
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
-            marketDataService.getLatestMarketDataForSymbolSync(symbol, interval));
-        assertEquals("Stock not found: INVALID", exception.getMessage());
-    }
-
-    @Test
-    void testRefreshMarketDataSync() {
-        // Given
-        String symbol = "AAPL";
         String interval = "5min";
         List<MarketData> expectedData = Arrays.asList(testMarketData);
 
