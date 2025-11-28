@@ -265,10 +265,10 @@
                                         th:data-stock-id="${stock?.id}" onclick="addToWatchlistAjax(this)">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-primary flex-fill"
-                                        th:data-stock-id="${stock?.id}" onclick="quickBuyAjax(this)">
+                                    <a th:href="@{'/portfolio/dashboard?stock=' + ${stock?.symbol}}"
+                                        class="btn btn-sm btn-outline-primary flex-fill">
                                         <i class="fas fa-shopping-cart"></i>
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
