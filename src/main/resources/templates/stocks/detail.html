@@ -90,29 +90,15 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <span th:if="${stock?.priceChangePercent != null}"
-            th:class="${stock?.priceChangePercent > 0 ? 'stock-up' : 'stock-down'}"
-            th:text="${stock?.priceChangePercent > 0 ? '+' : ''} + #numbers.formatDecimal(stock.priceChangePercent, 1, 2) + '%'"></span>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-
-        <div class="container">
-            <!-- Stock Information -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <div class="chart-container">
-                        <h3>Stock Information</h3>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <strong>Symbol:</strong> <span th:text="${stock?.symbol}"></span>
-                                </div>
+                            <div class="container">
+                                <!-- Stock Information -->
+                                <div class="row mb-4">
+                                    <div class="col-md-8">
+                                        <div class="chart-container">
+                                            <h3>Stock Information</h3>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <strong>Symbol:</strong> <span
+                                                            th:text="${stock?.symbol}"></span>
+                                                    </div>

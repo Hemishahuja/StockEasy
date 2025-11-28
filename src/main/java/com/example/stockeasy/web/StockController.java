@@ -124,9 +124,25 @@ public class StockController {
      */
     @GetMapping("/{stockId}")
     public String getStockDetail(@PathVariable Long stockId, Model model) {
-        Stock stock = stockService.getStockBySymbol("AAPL"); // For demo, use a default stock
-        model.addAttribute("stock", stock);
-        return "stocks/detail";
+        try {
+            // Get all active stocks and find the one with matching ID
+            List<Stock> allStocks = stockService.getActiveStocks();
+            Stock stock = allStocks.stream()
+                    .filter(s -> s.getId().equals(stockId))
+                    .findFirst()
+                    .orElse(null);
+
+            if (stock == null) {
+                model.addAttribute("error", "Stock not found");
+                return "redirect:/stocks";
+            }
+
+            model.addAttribute("stock", stock);
+            return "stocks/detail";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error loading stock details: " + e.getMessage());
+            return "redirect:/stocks";
+        }
     }
 
     /**
