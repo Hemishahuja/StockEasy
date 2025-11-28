@@ -11,24 +11,24 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 /**
- * Configuration properties for Alpha Vantage API integration.
+ * Configuration properties for Finnhub API integration.
  */
 @Configuration
-@ConfigurationProperties(prefix = "alpha-vantage")
+@ConfigurationProperties(prefix = "finnhub")
 @Validated
-public class AlphaVantageConfig {
+public class FinnhubConfig {
 
     /**
-     * Alpha Vantage API key.
+     * Finnhub API key.
      */
     @NotBlank
     private String apiKey;
 
     /**
-     * Base URL for Alpha Vantage API.
+     * Base URL for Finnhub API.
      */
     @NotBlank
-    private String baseUrl = "https://www.alphavantage.co";
+    private String baseUrl = "https://finnhub.io/api/v1";
 
     /**
      * Timeout for API calls.
@@ -40,7 +40,7 @@ public class AlphaVantageConfig {
      * Rate limit delay between API calls (in milliseconds).
      */
     @Positive
-    private long rateLimitDelay = 12000; // 12 seconds to stay under 5 calls/minute limit
+    private long rateLimitDelay = 1000; // 1 second to stay under 60 calls/minute limit
 
     /**
      * Maximum number of retry attempts for failed API calls.

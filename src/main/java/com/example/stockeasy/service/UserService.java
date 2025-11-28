@@ -109,4 +109,45 @@ public class UserService implements UserDetailsService {
         
         return initialBalance;
     }
+
+    /**
+     * Set user's cash balance to a custom amount
+     * Allows users to change their starting virtual balance
+     */
+    public BigDecimal setCustomCashBalance(Long userId, BigDecimal newBalance) {
+        if (newBalance == null || newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Balance must be a positive number");
+        }
+        
+        if (newBalance.compareTo(new BigDecimal("1000000.00")) > 0) {
+            throw new IllegalArgumentException("Balance cannot exceed $1,000,000");
+        }
+        
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        user.setCashBalance(newBalance);
+        userRepository.save(user);
+        
+        return newBalance;
+    }
+
+    /**
+     * Add funds to user's cash balance
+     * Useful for topping up virtual balance
+     */
+    public BigDecimal addFundsToBalance(Long userId, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be a positive number");
+        }
+        
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        BigDecimal newBalance = user.getCashBalance().add(amount);
+        user.setCashBalance(newBalance);
+        userRepository.save(user);
+        
+        return newBalance;
+    }
 }

@@ -129,6 +129,42 @@
             </div>
         </div>
 
+        <!-- Balance Management Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-wallet me-2"></i>Balance Management
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-2">Current Cash Balance</h6>
+                                <h4 class="mb-3 text-success" th:text="'$' + ${user?.cashBalance != null ? #numbers.formatDecimal(user.cashBalance, 1, 2) : '0.00'}">$100,000.00</h4>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#setBalanceModal">
+                                        <i class="fas fa-edit me-1"></i>Set Balance
+                                    </button>
+                                    <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#addFundsModal">
+                                        <i class="fas fa-plus me-1"></i>Add Funds
+                                    </button>
+                                    <button class="btn btn-outline-warning btn-sm" onclick="resetBalance()">
+                                        <i class="fas fa-redo me-1"></i>Reset to $100K
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Use these tools to customize your starting virtual balance for different trading scenarios.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Reset Portfolio Section -->
         <div class="row mb-4">
             <div class="col-12">
@@ -325,6 +361,135 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
             </div>
             <div class="toast-body" th:text="${error}"></div>
+        </div>
+    </div>
+
+    <!-- Set Balance Modal -->
+    <div class="modal fade" id="setBalanceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>Set Custom Balance
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">New Balance Amount</label>
+                        <input type="number" class="form-control" id="setBalanceAmount" min="0.01" step="0.01" placeholder="100000.00">
+                        <div class="form-text">Enter the new starting balance amount (maximum $1,000,000)</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirmation</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="confirmSetBalance">
+                            <label class="form-check-label" for="confirmSetBalance">
+                                I understand this will change my starting virtual balance
+                            </label>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small>This changes your starting balance for experimentation. Your current holdings will remain unchanged.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmSetBalanceBtn" disabled>
+                        <i class="fas fa-save me-1"></i>Set Balance
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Funds Modal -->
+    <div class="modal fade" id="addFundsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>Add Funds
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Amount to Add</label>
+                        <input type="number" class="form-control" id="addFundsAmount" min="0.01" step="0.01" placeholder="10000.00">
+                        <div class="form-text">Enter the amount to add to your current balance</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Current Balance</label>
+                        <input type="text" class="form-control" id="currentBalanceDisplay" readonly 
+                               th:value="'$' + ${user?.cashBalance != null ? #numbers.formatDecimal(user.cashBalance, 1, 2) : '0.00'}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New Balance (After Addition)</label>
+                        <input type="text" class="form-control" id="newBalanceDisplay" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirmation</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="confirmAddFunds">
+                            <label class="form-check-label" for="confirmAddFunds">
+                                I want to add funds to my account
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="confirmAddFundsBtn" disabled>
+                        <i class="fas fa-plus me-1"></i>Add Funds
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Balance Modal -->
+    <div class="modal fade" id="resetBalanceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-redo me-2"></i>Reset Balance
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>This will reset your balance to $100,000.00</strong>
+                    </div>
+                    
+                    <p class="lead">Are you sure you want to reset your cash balance?</p>
+                    
+                    <div class="mb-3">
+                        <h6>What will happen:</h6>
+                        <ul class="list-unstyled ms-3">
+                            <li><i class="fas fa-minus-circle text-warning me-2"></i>Your cash balance will be set to $100,000.00</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Your stock holdings will remain unchanged</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Your transaction history will remain unchanged</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <input type="checkbox" id="confirmResetBalanceCheckbox" class="form-check-input me-2">
+                            I understand this action will reset my balance to $100,000.00
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning text-dark" id="confirmResetBalanceBtn" disabled>
+                        <i class="fas fa-redo me-1"></i>Reset Balance
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -589,6 +754,311 @@
         console.log('Available stocks loaded:', availableStocks.length);
         console.log('Portfolio items loaded:', portfolioData.length);
         console.log('Reset functionality initialized');
+
+        // Balance Management Functions
+
+        // Set Balance Modal Functionality
+        document.getElementById('setBalanceAmount').addEventListener('input', function() {
+            updateSetBalanceButton();
+            validateSetBalanceAmount();
+        });
+
+        document.getElementById('confirmSetBalance').addEventListener('change', updateSetBalanceButton);
+
+        function updateSetBalanceButton() {
+            const amount = parseFloat(document.getElementById('setBalanceAmount').value) || 0;
+            const confirmed = document.getElementById('confirmSetBalance').checked;
+            document.getElementById('confirmSetBalanceBtn').disabled = !(amount > 0 && amount <= 1000000 && confirmed);
+        }
+
+        function validateSetBalanceAmount() {
+            const amount = parseFloat(document.getElementById('setBalanceAmount').value) || 0;
+            const helpText = document.querySelector('#setBalanceAmount').parentElement.querySelector('.invalid-feedback') || document.createElement('div');
+            
+            if (amount <= 0) {
+                helpText.className = 'invalid-feedback';
+                helpText.textContent = 'Amount must be greater than $0';
+                document.querySelector('#setBalanceAmount').classList.add('is-invalid');
+            } else if (amount > 1000000) {
+                helpText.className = 'invalid-feedback';
+                helpText.textContent = 'Amount cannot exceed $1,000,000';
+                document.querySelector('#setBalanceAmount').classList.add('is-invalid');
+            } else {
+                document.querySelector('#setBalanceAmount').classList.remove('is-invalid');
+                if (helpText.parentNode) {
+                    helpText.parentNode.removeChild(helpText);
+                }
+            }
+        }
+
+        document.getElementById('confirmSetBalanceBtn').addEventListener('click', function() {
+            const amount = parseFloat(document.getElementById('setBalanceAmount').value);
+            const userId = /*[[${user?.id}]]*/ null;
+            
+            if (!userId) {
+                showToast('danger', 'User not found. Please log in again.');
+                return;
+            }
+
+            const setBtn = this;
+            const originalText = setBtn.innerHTML;
+            
+            // Disable button and show loading state
+            setBtn.disabled = true;
+            setBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Setting Balance...';
+            
+            // Make API call to set custom balance
+            fetch(`/users/${userId}/balance/set`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ amount: amount })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update display
+                    const newBalance = data.newBalance;
+                    document.querySelector('.card-header + .card-body h4').textContent = '$' + Number(newBalance).toFixed(2);
+                    document.getElementById('currentBalanceDisplay').value = '$' + Number(newBalance).toFixed(2);
+                    
+                    // Show success message
+                    showToast('success', 'Balance set successfully! New balance: $' + Number(newBalance).toFixed(2));
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('setBalanceModal'));
+                    modal.hide();
+                    
+                    // Reset form
+                    document.getElementById('setBalanceAmount').value = '';
+                    document.getElementById('confirmSetBalance').checked = false;
+                    updateSetBalanceButton();
+                } else {
+                    // Show error message
+                    showToast('danger', data.message || 'Failed to set balance. Please try again.');
+                    setBtn.disabled = false;
+                    setBtn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Set balance error:', error);
+                showToast('danger', 'An error occurred while setting balance. Please try again.');
+                setBtn.disabled = false;
+                setBtn.innerHTML = originalText;
+            });
+        });
+
+        // Add Funds Modal Functionality
+        document.getElementById('addFundsAmount').addEventListener('input', function() {
+            updateAddFundsPreview();
+            updateAddFundsButton();
+        });
+
+        document.getElementById('confirmAddFunds').addEventListener('change', updateAddFundsButton);
+
+        function updateAddFundsPreview() {
+            const amount = parseFloat(document.getElementById('addFundsAmount').value) || 0;
+            const currentBalance = parseFloat(document.getElementById('currentBalanceDisplay').value.replace('$', '')) || 0;
+            const newBalance = currentBalance + amount;
+            
+            if (amount > 0) {
+                document.getElementById('newBalanceDisplay').value = '$' + newBalance.toFixed(2);
+            } else {
+                document.getElementById('newBalanceDisplay').value = '';
+            }
+        }
+
+        function updateAddFundsButton() {
+            const amount = parseFloat(document.getElementById('addFundsAmount').value) || 0;
+            const confirmed = document.getElementById('confirmAddFunds').checked;
+            document.getElementById('confirmAddFundsBtn').disabled = !(amount > 0 && confirmed);
+        }
+
+        document.getElementById('confirmAddFundsBtn').addEventListener('click', function() {
+            const amount = parseFloat(document.getElementById('addFundsAmount').value);
+            const userId = /*[[${user?.id}]]*/ null;
+            
+            if (!userId) {
+                showToast('danger', 'User not found. Please log in again.');
+                return;
+            }
+
+            const addBtn = this;
+            const originalText = addBtn.innerHTML;
+            
+            // Disable button and show loading state
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Adding Funds...';
+            
+            // Make API call to add funds
+            fetch(`/users/${userId}/balance/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ amount: amount })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update display
+                    const newBalance = data.newBalance;
+                    document.querySelector('.card-header + .card-body h4').textContent = '$' + Number(newBalance).toFixed(2);
+                    document.getElementById('currentBalanceDisplay').value = '$' + Number(newBalance).toFixed(2);
+                    
+                    // Show success message
+                    showToast('success', 'Funds added successfully! New balance: $' + Number(newBalance).toFixed(2));
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addFundsModal'));
+                    modal.hide();
+                    
+                    // Reset form
+                    document.getElementById('addFundsAmount').value = '';
+                    document.getElementById('confirmAddFunds').checked = false;
+                    document.getElementById('newBalanceDisplay').value = '';
+                    updateAddFundsButton();
+                } else {
+                    // Show error message
+                    showToast('danger', data.message || 'Failed to add funds. Please try again.');
+                    addBtn.disabled = false;
+                    addBtn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Add funds error:', error);
+                showToast('danger', 'An error occurred while adding funds. Please try again.');
+                addBtn.disabled = false;
+                addBtn.innerHTML = originalText;
+            });
+        });
+
+        // Reset Balance Functionality
+        function resetBalance() {
+            const userId = /*[[${user?.id}]]*/ null;
+            
+            if (!userId) {
+                showToast('danger', 'User not found. Please log in again.');
+                return;
+            }
+
+            // Show reset confirmation modal
+            const resetModal = new bootstrap.Modal(document.getElementById('resetBalanceModal'));
+            resetModal.show();
+        }
+
+        document.getElementById('confirmResetBalanceCheckbox').addEventListener('change', function() {
+            document.getElementById('confirmResetBalanceBtn').disabled = !this.checked;
+        });
+
+        document.getElementById('confirmResetBalanceBtn').addEventListener('click', function() {
+            const userId = /*[[${user?.id}]]*/ null;
+            
+            if (!userId) {
+                showToast('danger', 'User not found. Please log in again.');
+                return;
+            }
+
+            const resetBtn = this;
+            const originalText = resetBtn.innerHTML;
+            
+            // Disable button and show loading state
+            resetBtn.disabled = true;
+            resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Resetting Balance...';
+            
+            // Make API call to reset balance
+            fetch(`/users/${userId}/balance/reset`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update display
+                    const newBalance = data.newBalance;
+                    document.querySelector('.card-header + .card-body h4').textContent = '$' + Number(newBalance).toFixed(2);
+                    document.getElementById('currentBalanceDisplay').value = '$' + Number(newBalance).toFixed(2);
+                    
+                    // Show success message
+                    showToast('success', 'Balance reset successfully! New balance: $' + Number(newBalance).toFixed(2));
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('resetBalanceModal'));
+                    modal.hide();
+                    
+                    // Reset checkbox
+                    document.getElementById('confirmResetBalanceCheckbox').checked = false;
+                    document.getElementById('confirmResetBalanceBtn').disabled = true;
+                } else {
+                    // Show error message
+                    showToast('danger', data.message || 'Failed to reset balance. Please try again.');
+                    resetBtn.disabled = false;
+                    resetBtn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Reset balance error:', error);
+                showToast('danger', 'An error occurred while resetting balance. Please try again.');
+                resetBtn.disabled = false;
+                resetBtn.innerHTML = originalText;
+            });
+        });
+
+        // Update balance display when page loads
+        function updateBalanceDisplay() {
+            const userId = /*[[${user?.id}]]*/ null;
+            if (userId) {
+                fetch(`/users/${userId}/balance`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const balance = data.balance;
+                            document.querySelector('.card-header + .card-body h4').textContent = '$' + Number(balance).toFixed(2);
+                            if (document.getElementById('currentBalanceDisplay')) {
+                                document.getElementById('currentBalanceDisplay').value = '$' + Number(balance).toFixed(2);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Failed to fetch balance:', error);
+                    });
+            }
+        }
+
+        // Update balance display on page load
+        updateBalanceDisplay();
+
+        // Add event listeners for modal cleanup
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function() {
+                // Reset form fields when modal is closed
+                const form = this.querySelector('form');
+                if (form) {
+                    form.reset();
+                }
+                
+                // Reset button states
+                const buttons = this.querySelectorAll('button[disabled]');
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    if (btn.innerHTML.includes('spinner')) {
+                        btn.innerHTML = btn.innerHTML.replace(/<i class="fas fa-spinner fa-spin me-1"><\/i>/, '').replace('...', '');
+                    }
+                });
+                
+                // Clear any validation errors
+                const inputs = this.querySelectorAll('.is-invalid');
+                inputs.forEach(input => {
+                    input.classList.remove('is-invalid');
+                });
+            });
+        });
     </script>
 </body>
 </html>
