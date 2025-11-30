@@ -11,25 +11,36 @@
         .stock-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2rem 0;
+            padding: 3rem 0;
             margin-bottom: 2rem;
             border-radius: 0 0 20px 20px;
         }
 
         .price-display {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: bold;
         }
 
         .price-change {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+            font-weight: 500;
         }
 
         .stock-up {
             color: #28a745;
         }
 
+        .stock-up-bg {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
         .stock-down {
+            color: #dc3545;
+        }
+
+        .stock-down-bg {
+            background-color: rgba(220, 53, 69, 0.1);
             color: #dc3545;
         }
 
@@ -44,13 +55,41 @@
             transform: scale(1.05);
         }
 
-        .chart-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+        .detail-card {
+            background: white;
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            height: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .detail-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .label-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .value-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .action-bar {
+            background: white;
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            bottom: 20px;
+            z-index: 100;
         }
     </style>
 </head>
@@ -90,15 +129,200 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <div class="container">
-                                <!-- Stock Information -->
-                                <div class="row mb-4">
-                                    <div class="col-md-8">
-                                        <div class="chart-container">
-                                            <h3>Stock Information</h3>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <strong>Symbol:</strong> <span
-                                                            th:text="${stock?.symbol}"></span>
-                                                    </div>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Stock Header -->
+    <div class="stock-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <a href="/stocks" class="text-white text-decoration-none mb-3 d-inline-block">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Stocks
+                    </a>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <h1 class="mb-0 display-4 fw-bold" th:text="${stock?.symbol}">SYMBOL</h1>
+                        <span class="badge bg-light text-dark fs-6" th:text="${stock?.sector}">Sector</span>
+                    </div>
+                    <h4 class="text-white-50 mb-0" th:text="${stock?.companyName}">Company Name</h4>
+                </div>
+                <div class="col-md-4 text-md-end mt-4 mt-md-0">
+                    <div class="price-display mb-1" 
+                         th:text="'$' + ${stock?.currentPrice != null ? #numbers.formatDecimal(stock.currentPrice, 1, 2) : '0.00'}">
+                        $0.00
+                    </div>
+                    <div class="price-change" 
+                         th:classappend="${stock?.isPriceUp()} ? 'text-success' : 'text-danger'"
+                         style="background: rgba(255,255,255,0.9); padding: 5px 15px; border-radius: 20px; display: inline-block;">
+                        <i th:class="${stock?.isPriceUp()} ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                        <span th:text="${stock?.priceChangePercent != null ? #numbers.formatDecimal(stock.priceChangePercent, 1, 2) + '%' : '0.00%'}">0.00%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row g-4">
+            <!-- Left Column: Details -->
+            <div class="col-lg-8">
+                <!-- Key Statistics -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="detail-card">
+                            <div class="label-text"><i class="fas fa-layer-group me-2"></i>Industry</div>
+                            <div class="value-text" th:text="${stock?.industry}">Industry</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-card">
+                            <div class="label-text"><i class="fas fa-coins me-2"></i>Market Cap</div>
+                            <div class="value-text" th:text="${stock?.marketCap != null ? '$' + #numbers.formatDecimal(stock.marketCap, 1, 0) : 'N/A'}">N/A</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-card">
+                            <div class="label-text"><i class="fas fa-chart-bar me-2"></i>Volume</div>
+                            <div class="value-text" th:text="${stock?.volume != null ? #numbers.formatDecimal(stock.volume, 0, 0) : '0'}">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-card">
+                            <div class="label-text"><i class="fas fa-clock me-2"></i>Last Traded</div>
+                            <div class="value-text fs-6" th:text="${stock?.lastTradedAt != null ? #temporals.format(stock.lastTradedAt, 'MMM dd, HH:mm') : 'N/A'}">N/A</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-card">
+                            <div class="label-text"><i class="fas fa-history me-2"></i>Prev Close</div>
+                            <div class="value-text" th:text="${stock?.previousClose != null ? '$' + #numbers.formatDecimal(stock.previousClose, 1, 2) : 'N/A'}">N/A</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-card">
+                            <div class="label-text"><i class="fas fa-exchange-alt me-2"></i>Currency</div>
+                            <div class="value-text" th:text="${stock?.currency}">USD</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="detail-card mb-4">
+                    <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>About <span th:text="${stock?.companyName}">Company</span></h5>
+                    <p class="text-muted mb-0" th:text="${stock?.description ?: 'No description available for this stock.'}">
+                        Description...
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Column: Actions -->
+            <div class="col-lg-4">
+                <div class="detail-card">
+                    <h5 class="mb-4">Quick Actions</h5>
+                    
+                    <div class="d-grid gap-3">
+                        <a th:href="@{'/portfolio/dashboard?stock=' + ${stock?.symbol}}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shopping-cart me-2"></i>Buy Shares
+                        </a>
+                        
+                        <button class="btn btn-outline-success btn-lg" 
+                                th:data-stock-id="${stock?.id}" 
+                                onclick="addToWatchlistAjax(this)">
+                            <i class="fas fa-eye me-2"></i>Add to Watchlist
+                        </button>
+                        
+                        <button class="btn btn-outline-secondary" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Summary
+                        </button>
+                    </div>
+
+                    <hr class="my-4">
+                    
+                    <div class="alert alert-info mb-0">
+                        <small><i class="fas fa-lightbulb me-2"></i>Tip: You can trade this stock from your portfolio dashboard.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                Action completed successfully!
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Extract current user ID (simplified for demo)
+        function extractUserId() {
+            const profileLink = document.querySelector('a[href^="/users/"]');
+            if (profileLink) {
+                const href = profileLink.getAttribute('href');
+                const userId = href.match(/\/users\/(\d+)/);
+                return userId ? parseInt(userId[1]) : null;
+            }
+            return null;
+        }
+
+        function showToast(message) {
+            const toastEl = document.getElementById('liveToast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        function addToWatchlistAjax(button) {
+            const stockId = button.getAttribute('data-stock-id');
+            const userId = extractUserId();
+
+            if (!stockId || !userId) {
+                showToast('Please login to add to watchlist.');
+                return;
+            }
+
+            const originalHtml = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+
+            fetch('/watchlist/api/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: userId, stockId: parseInt(stockId) })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showToast('Added to watchlist!');
+                    button.classList.remove('btn-outline-success');
+                    button.classList.add('btn-success');
+                    button.innerHTML = '<i class="fas fa-check me-2"></i>Added';
+                } else {
+                    showToast('Failed to add to watchlist.');
+                    button.innerHTML = originalHtml;
+                    button.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Error occurred.');
+                button.innerHTML = originalHtml;
+                button.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
