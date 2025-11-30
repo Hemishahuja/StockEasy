@@ -35,7 +35,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InsufficientSharesException.class)
-    public ResponseEntity<Object> handleInsufficientSharesException(InsufficientSharesException ex, WebRequest request) {
+    public ResponseEntity<Object> handleInsufficientSharesException(InsufficientSharesException ex,
+            WebRequest request) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", ex.getMessage());
@@ -54,6 +55,12 @@ public class GlobalExceptionHandler {
         body.put("error", "INVALID_ARGUMENT");
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<Object> handleNoResourceFoundException(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex, WebRequest request) {
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(Exception.class)
