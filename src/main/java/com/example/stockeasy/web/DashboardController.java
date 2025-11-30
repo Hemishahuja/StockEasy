@@ -71,6 +71,7 @@ public class DashboardController {
 
             // Add all data to model
             model.addAttribute("user", user);
+            model.addAttribute("tourCompleted", user.isTourCompleted());
             model.addAttribute("activeStocks", activeStocks != null ? activeStocks : List.of());
             model.addAttribute("portfolioValue", portfolioValue != null ? portfolioValue : java.math.BigDecimal.ZERO);
             model.addAttribute("totalPortfolioValue", totalValue);

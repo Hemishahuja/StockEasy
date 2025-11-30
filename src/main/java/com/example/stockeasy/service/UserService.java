@@ -150,4 +150,14 @@ public class UserService implements UserDetailsService {
         
         return newBalance;
     }
+
+    /**
+     * Mark that the user has completed the in-app tour.
+     */
+    public void setTourCompletedByUsername(String username, boolean completed) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setTourCompleted(completed);
+        userRepository.save(user);
+    }
 }

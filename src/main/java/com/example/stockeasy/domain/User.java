@@ -1,17 +1,33 @@
 package com.example.stockeasy.domain;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 /**
  * User entity representing a user in the stock trading simulator.
@@ -68,6 +84,9 @@ public class User implements UserDetails {
     
     @Column(name = "account_locked_until")
     private LocalDateTime accountLockedUntil;
+    
+    @Column(name = "tour_completed", nullable = false)
+    private Boolean tourCompleted = false;
     
     // Relationships
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -217,6 +236,9 @@ public class User implements UserDetails {
     
     public LocalDateTime getAccountLockedUntil() { return accountLockedUntil; }
     public void setAccountLockedUntil(LocalDateTime accountLockedUntil) { this.accountLockedUntil = accountLockedUntil; }
+    
+    public Boolean isTourCompleted() { return tourCompleted != null ? tourCompleted : false; }
+    public void setTourCompleted(Boolean tourCompleted) { this.tourCompleted = tourCompleted; }
     
     public Set<Portfolio> getPortfolios() { return portfolios; }
     public void setPortfolios(Set<Portfolio> portfolios) { this.portfolios = portfolios; }
