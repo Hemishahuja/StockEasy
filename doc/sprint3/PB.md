@@ -192,4 +192,4 @@ Our Sprint 3 burndown chart shows steady and realistic progress across the sprin
 
 The actual burndown line stayed flat during the early days of the sprint as the team was setting up tasks and beginning initial development. A noticeable drop occurs around Nov 25th when major features such as stock filtering, enhanced stock details, and analysis components were completed. The remaining tasks were finalized near the end of the sprint, which resulted in the final sharp decline toward completion.
 
-Overall, the actual burndown follows the expected pattern and aligns closely with the ideal curve by the end of the sprint, demonstrating that the team was able to complete all Sprint 3 commitments on time.
+Our actual burndown line is mostly flat because the team tended to move several stories into “Done” in batches rather than updating Trello daily. As a result, the tool shows work remaining at around 30 points for most of the sprint even though development was progressing. Near the end of the sprint, the remaining stories were completed and the board was updated, aligning the final actual value with the ideal burndown.
