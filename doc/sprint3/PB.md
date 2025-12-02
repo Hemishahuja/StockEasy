@@ -79,7 +79,6 @@ These stories were partially implemented in Sprint 2 and continue in Sprint 3:
 \- ID 11 \-Basics page (definitions)    
 \- ID 33 \-Mobile-friendly UI    
 \- ID 44 \-Persistent breadcrumbs    
-\- ID 45 \-Glossary of terms    
 \- ID 21 \-Demo posts for the community feed  
 
 \---
@@ -90,8 +89,7 @@ These stories were partially implemented in Sprint 2 and continue in Sprint 3:
 \- ID 18 \-Portfolio analysis educational guide    
 \- ID 19 \-Community forum (complete in Sprint 3\)    
 \- ID 20 \-Social-media-style community posts    
-\- ID 21 \-Fake demo posts    
-\- ID 45 \-Glossary of trading terms    
+\- ID 21 \-Fake demo posts      
 \- ID 44 \-Breadcrumb navigation    
 \- ID 33 \-Mobile UX polish  
 
@@ -106,7 +104,6 @@ Sprint 3 includes a strong emphasis on education, community, and UX, so new item
 \- ID 21 \-Demo Activity Posts    
 \- ID 18 \-Portfolio Analysis Guide    
 \- ID 11 \-Basics Page    
-\- ID 45 \-Glossary    
 \- ID 33 \-Mobile Responsive Layout    
 \- ID 44 \-Breadcrumb Navigation  
 
@@ -149,18 +146,17 @@ Product Backlog Table
 | 30  | As a user, I can clear cached market data for fresh updates.                         |    M     |   2    |   2    |    Done     |
 | 31  | As a user, I am protected by secure authentication and session management.           |    H     |   5    |   1    |    Done     |
 | 32  | As a user, I see comprehensive error messages and feedback.                          |    H     |   3    |   2    |    Done     |
-| 33  | As a user, I can use the interface on mobile devices seamlessly.                     |    M     |   8    |   2    | In Progress |
-| 34  | As a user, I can save my trading history for future reference.                       |    M     |   5    |   2    |    Done     |
-| 35  | As a user, I can track the average cost of my stock purchases.                       |    M     |   4    |   2    |    Done     |
-| 36  | As a user, I can benefit from AJAX-based interactions for faster page updates.       |    M     |   3    |   2    |    Done     |
-| 37  | As a user, I can see portfolio diversification metrics.                              |    M     |   3    |   2    |    Done     |
-| 38  | As a user, I experience fast page load times with caching.                           |    M     |   4    |   2    |    Done     |
-| 39  | As a user, my data is automatically backed up and validated.                         |    M     |   3    |   2    |    Done     |
-| 40  | As a developer, I can monitor application health and metrics.                        |    M     |   3    |   2    |    Done     |
-| 41  | As a user, I can schedule automated price updates.                                   |    L     |   3    |   2    |    Done     |
-| 42  | As a user, I can update my user profile information.                                 |    L     |   3    |   2    |    Done     |
-| 43  | As a user, I can see my portfolio's total market value.                              |    M     |   3    |   2    |    Done     |
-| 44  | As a user, I can navigate between sections with persistent breadcrumbs.              |    M     |   2    |   2    | In Progress |
+| 33  | As a user, I can save my trading history for future reference.                       |    M     |   5    |   2    |    Done     |
+| 34  | As a user, I can track the average cost of my stock purchases.                       |    M     |   4    |   2    |    Done     |
+| 35  | As a user, I can benefit from AJAX-based interactions for faster page updates.       |    M     |   3    |   2    |    Done     |
+| 36  | As a user, I can see portfolio diversification metrics.                              |    M     |   3    |   2    |    Done     |
+| 37  | As a user, I experience fast page load times with caching.                           |    M     |   4    |   2    |    Done     |
+| 38  | As a user, my data is automatically backed up and validated.                         |    M     |   3    |   2    |    Done     |
+| 39  | As a developer, I can monitor application health and metrics.                        |    M     |   3    |   2    |    Done     |
+| 40  | As a user, I can schedule automated price updates.                                   |    L     |   3    |   2    |    Done     |
+| 41  | As a user, I can update my user profile information.                                 |    L     |   3    |   2    |    Done     |
+| 42  | As a user, I can see my portfolio's total market value.                              |    M     |   3    |   2    |    Done     |
+| 43  | As a user, I can navigate between sections with persistent breadcrumbs.              |    M     |   2    |   2    | In Progress |
 
 
 
