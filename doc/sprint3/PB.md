@@ -184,3 +184,12 @@ Sprint 3 primarily focuses on:
   \- 33 – Mobile-friendly interface improvements    
   \- 44 – Persistent breadcrumbs for easier navigation  
 
+## Sprint 3 Burndown Chart
+
+![Sprint 3 Burndown](Sprint3_BurndownChart.png)
+
+Our Sprint 3 burndown chart shows steady and realistic progress across the sprint timeframe (Nov 18 – Dec 1). The ideal burndown line decreases smoothly from ~30 points to 0, representing the expected gradual completion of work.
+
+The actual burndown line stayed flat during the early days of the sprint as the team was setting up tasks and beginning initial development. A noticeable drop occurs around Nov 25th when major features such as stock filtering, enhanced stock details, and analysis components were completed. The remaining tasks were finalized near the end of the sprint, which resulted in the final sharp decline toward completion.
+
+Overall, the actual burndown follows the expected pattern and aligns closely with the ideal curve by the end of the sprint, demonstrating that the team was able to complete all Sprint 3 commitments on time.
