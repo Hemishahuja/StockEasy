@@ -1,5 +1,6 @@
 package com.example.stockeasy.config;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.example.stockeasy.domain.Post;
 import com.example.stockeasy.domain.Stock;
 import com.example.stockeasy.domain.User;
+import com.example.stockeasy.repo.PostRepository;
 import com.example.stockeasy.repo.StockRepository;
 import com.example.stockeasy.repo.UserRepository;
 import com.example.stockeasy.service.MarketDataService;
@@ -23,6 +26,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private StockRepository stockRepository;
+
+    @Autowired
+    private PostRepository postRepository;
 
     @Autowired
     private MarketDataService marketDataService;
@@ -44,6 +50,12 @@ public class DataInitializer implements CommandLineRunner {
         if (stockRepository.count() == 0) {
             createSampleStocks();
             System.out.println("Sample stocks created for demo");
+        }
+
+        // Create fake posts if none exist
+        if (postRepository.count() == 0) {
+            createSamplePosts();
+            System.out.println("Sample posts created for demo");
         }
     }
 
@@ -124,5 +136,22 @@ public class DataInitializer implements CommandLineRunner {
 
         stockRepository.saveAll(stocks);
         System.out.println("Sample stocks created: " + stocks.stream().map(Stock::getSymbol).toList());
+    }
+
+    private void createSamplePosts() {
+        // Create 3 fake posts about stocks with descending timestamps (most recent first)
+        List<Post> posts = List.of(
+                new Post("MarketWatcher", "TSLA shows incredible momentum this week! EV market is heating up. What do you think about Q4 projections?"),
+                new Post("StockGuru", "AAPL earnings were solid today. iPhone 15 sales exceeding expectations. Holding strong at $180+"),
+                new Post("TraderJoe", "Just bought into GOOGL after their AI announcements. Google is positioning for AI dominance - exciting times!")
+        );
+
+        // Set recent timestamps manually for proper ordering (last post is most recent)
+        posts.get(0).setTimestamp(LocalDateTime.now().minusMinutes(30)); // 30 min ago
+        posts.get(1).setTimestamp(LocalDateTime.now().minusHours(2));   // 2 hours ago
+        posts.get(2).setTimestamp(LocalDateTime.now().minusHours(4));   // 4 hours ago
+
+        postRepository.saveAll(posts);
+        System.out.println("Sample posts created from users: " + posts.stream().map(Post::getUsername).toList());
     }
 }
