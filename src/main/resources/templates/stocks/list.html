@@ -496,23 +496,27 @@
                     handleAjaxResponse(response, 'Stock added to watchlist successfully!', 'Failed to add stock to watchlist');
 
                     if (response.ok) {
-                        // Change button to indicate it's in watchlist
+                        // Change button to indicate it's in watchlist and keep it that way
                         button.classList.remove('btn-outline-success');
                         button.classList.add('btn-success');
                         button.querySelector('i').className = 'fas fa-check';
+                        button.setAttribute('title', 'Already in watchlist');
+                        // Remove onclick handler to prevent re-adding
+                        button.removeAttribute('onclick');
+                        button.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            showToast('Stock is already in your watchlist');
+                        });
                     }
 
                     return response;
                 })
                 .then(() => {
-                    // Reset button state after 2 seconds
-                    setTimeout(() => {
+                    // Only re-enable if failed
+                    if (!button.classList.contains('btn-success')) {
                         button.innerHTML = '<i class="fas fa-eye"></i>';
                         button.disabled = false;
-                        // Reset button styling
-                        button.classList.remove('btn-success');
-                        button.classList.add('btn-outline-success');
-                    }, 2000);
+                    }
                 })
                 .catch(error => {
                     console.error('Error adding to watchlist:', error);

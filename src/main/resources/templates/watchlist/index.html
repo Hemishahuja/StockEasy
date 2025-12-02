@@ -149,9 +149,9 @@
                                             <button class="btn btn-primary btn-sm">
                                                 <i class="fas fa-chart-line me-1"></i>View Details
                                             </button>
-                                            <button class="btn btn-outline-success btn-sm">
+                                            <a th:href="@{'/portfolio/dashboard?stock=' + ${item.stock.symbol}}" class="btn btn-outline-success btn-sm">
                                                 <i class="fas fa-shopping-cart me-1"></i>Buy
-                                            </button>
+                                            </a>
                                             <button class="btn btn-outline-danger btn-sm"
                                                     th:data-watchlist-id="${item.id}"
                                                     onclick="removeFromWatchlistAjax(this)">
