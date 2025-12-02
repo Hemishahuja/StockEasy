@@ -42,7 +42,6 @@
         
     - 6.3 Background Services & External API
         
-    - 6.4 Community & Educational Components
         
 7. Key Workflows
     
@@ -147,7 +146,7 @@ The architecture follows a **layered MVC structure**:
 > This diagram shows the main layers of the system and how they interact. Controllers call services, services talk to repositories, and repositories manage domain entities. Background services and external API calls fit into the same structure.
 
 **Insert diagram here:**  
-`![Figure 1 – Architecture Overview](doc/sprint3/architecture-overview.png)`
+![Figure 1 – Architecture Overview](doc/sprint3/architecture-overview.png)
 
 ---
 
@@ -454,7 +453,7 @@ Below is a **representative subset** of CRC cards for the main classes.
 > **Figure 2 — User and Auth Components**  
 > Shows how `AuthController` and `UserController` interact with `AuthService`, `UserService`, and `UserRepository`. It also captures integration with Spring Security for login, registration, and session handling.
 
-`![Figure 2 – User & Auth Components](doc/sprint3/user-auth-components.png)`
+![Figure 2 – User & Auth Components](doc/sprint3/user-auth-components.png)
 
 ---
 
@@ -463,7 +462,7 @@ Below is a **representative subset** of CRC cards for the main classes.
 > **Figure 3 — Trading and Portfolio Components**  
 > Shows `DashboardController`, `PortfolioController`, `StockController`, `TransactionController`, and `WatchlistController` alongside the services and repositories they use. It highlights how trading actions update the portfolio and transaction history, and how stocks and watchlists are rendered.
 
-`![Figure 3 – Trading & Portfolio](doc/sprint3/trading-portfolio-components.png)`
+![Figure 3 – Trading & Portfolio](doc/sprint3/trading-portfolio-components.png)
 
 ---
 
@@ -472,26 +471,8 @@ Below is a **representative subset** of CRC cards for the main classes.
 > **Figure 4 — Background Services and API**  
 > Shows `ScheduledTaskService`, `PortfolioResetService`, `MarketDataService`, `FinnhubService`, and `CacheService`, plus the Finnhub external API. It illustrates how market data is refreshed, cached, and used, and how portfolio reset routines operate.
 
-`![Figure 4 – Background Services & API](doc/sprint3/background-services-api.png)`
+![Figure 4 – Background Services & API](doc/sprint3/background-services-api.png)
 
----
-
-## **6.4 Community & Educational Components**
-
-> **Figure 5 — Community and Educational Features**  
-> Shows `CommunityController`, `PostService`, `PostRepository`, `Post`, `TourController`, tour-related services, and `DataInitializer`, and how they integrate with `User`, `AuthService`, and the existing Finnhub-backed market data services.
-
-`![Figure 5 – Community Features](doc/sprint3/community-components.png)`
-
-This diagram emphasizes:
-
-- Request flow for creating and viewing posts
-    
-- How community features reuse user identity and security
-    
-- How guided tours/onboarding are implemented within the MVC structure
-    
-- How data seeding supports demo and educational use cases
     
 
 ---
