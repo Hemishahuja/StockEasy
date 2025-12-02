@@ -161,7 +161,7 @@ Product Backlog Table
 | 42  | As a user, I can update my user profile information.                                 |    L     |   3    |   2    |    Done     |
 | 43  | As a user, I can see my portfolio's total market value.                              |    M     |   3    |   2    |    Done     |
 | 44  | As a user, I can navigate between sections with persistent breadcrumbs.              |    M     |   2    |   2    | In Progress |
-| 45  | As a user, I can access a glossary of trading terms.                                 |    L     |   4    |   3    | In Progress |
+
 
 
 \---
