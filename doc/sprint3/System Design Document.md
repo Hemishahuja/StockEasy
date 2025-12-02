@@ -145,7 +145,6 @@ The architecture follows a **layered MVC structure**:
 > **Figure 1 — High-Level Architecture Overview**  
 > This diagram shows the main layers of the system and how they interact. Controllers call services, services talk to repositories, and repositories manage domain entities. Background services and external API calls fit into the same structure.
 
-**Insert diagram here:**  
 ![Figure 1 – Architecture Overview](doc/sprint3/architecture-overview.png)
 
 ---
