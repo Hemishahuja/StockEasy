@@ -145,7 +145,7 @@ Product Backlog Table
 | 26  | As a user, I can add or remove funds from my virtual account.                        |    M     |   3    |   2    |    Done     |  
 | 27  | As a user, I can set a custom starting balance for simulation.                       |    M     |   3    |   2    |    Done     |  
 | 28  | As a user, I can see up-to-date market data with refresh capabilities.               |    H     |   5    |   2    |    Done     |  
-| 29  | As a user, I can check market data history information.                 |    M     |   4    |   2    |    Done     |  
+| 29  | As a user, I can check market data history information.                              |    M     |   4    |   2    |    Done     |  
 | 30  | As a user, I can clear cached market data for fresh updates.                         |    M     |   2    |   2    |    Done     |  
 | 31  | As a user, I am protected by secure authentication and session management.           |    H     |   5    |   1    |    Done     |  
 | 32  | As a user, I see comprehensive error messages and feedback.                          |    H     |   3    |   2    |    Done     |  
