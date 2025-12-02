@@ -227,3 +227,6 @@ We will demonstrate Sprint 3 end-to-end:
   \- Market → Stock    
   \- Community → Post  
 
+# Sprint Video :
+
+\- https://drive.google.com/file/d/1oIJ7vFI1ICYzKsyNSGsxgcGAFt7KjuQm/view
