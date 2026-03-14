@@ -79,7 +79,7 @@ app:
 
 # Finnhub API Configuration
 finnhub:
-  api-key: d4etkopr01ql649g3650d4etkopr01ql649g365g
+  api-key: ${FINNHUB_API_KEY:replace-with-your-finnhub-api-key}
   base-url: "https://finnhub.io/api/v1"
   timeout: 30s
   rate-limit-delay: 1000 # 1 second delay (60 calls/minute limit)
@@ -106,7 +106,7 @@ spring:
 
 # Development Finnhub Configuration
 finnhub:
-  api-key: d4etkopr01ql649g3650d4etkopr01ql649g365g
+  api-key: ${FINNHUB_API_KEY:replace-with-your-finnhub-api-key}
   cache-ttl: 5m
 
 ---

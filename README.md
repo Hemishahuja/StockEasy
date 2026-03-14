@@ -1,238 +1,226 @@
 <div align="center">
 
-#  StockEasy - Stock Trading Simulator
+# StockEasy
+### Stock Trading Simulator Portfolio Project
 
- **A modern, feature-rich stock trading simulator built with Spring Boot**
+[![Java 21](https://img.shields.io/badge/Java-21-blue.svg?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.java.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.0-6DB33F.svg?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1.svg?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3.svg?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 
-[![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://openjdk.java.net/projects/jdk/21/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-orange.svg)](https://www.postgresql.org/)
-[![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.1.0-red.svg)](https://www.thymeleaf.org/)
+Full-stack stock trading simulator with secure authentication, transaction processing, portfolio analytics, watchlists, and Finnhub-backed market data.
 
-
-**Empowering users to learn stock trading in a risk-free environment with real-time market simulation.**
+[Overview](#overview) • [Architecture](#architecture) • [Domain Model](#domain-model) • [API Surface](#api-surface) • [Quick Start](#quick-start) • [Demo Video](#demo-video)
 
 </div>
 
 ---
 
+## Overview
 
-##  Features and motivation 
-StockEasy is a learning tool for practicing stock trading without real money. It simulates live-like prices, lets you buy/sell, track your portfolio, and review your decisions. The goal is to help students learn concepts such as orders, P/L, risk, and watchlists in a safe, classroom-friendly app. It’s built with Spring Boot so it’s easy to run locally and deploy for demos.
+`StockEasy` is a Java 21 + Spring Boot application that simulates equity trading with virtual cash. It combines server-rendered MVC pages with JSON endpoints to support both traditional page flows and AJAX interactions.
 
-###  Core Trading Features
-- Real-time Stock Tracking - Monitor stock prices with market data
-- Portfolio Management- Track holdings, performance, and profit/loss
-- Transaction History- Complete buy/sell transaction logging
-- Watchlists- Create and monitor custom stock watchlists
-- User Management- Secure authentication and user profiles
+Core capabilities include:
+- stock discovery with filtering/search and detail pages
+- buy/sell transaction execution with portfolio state updates
+- holdings valuation and transaction history
+- watchlist management and community feed interactions
+- external market data ingestion with caching and retry/rate-limit behavior
 
-###  Security & Reliability
-- Spring Security- Session-based authentication and authorization
-- Input Validation- Comprehensive validation using Bean Validation
-- Actuator Endpoints - Health monitoring and metrics
-- Error Handling - Global exception handling with custom responses
+This project originated as a multi-sprint software engineering course submission and was refined into a portfolio-ready repository.
 
-###  User Experience
--  Responsive UI- Bootstrap-powered responsive web interface
-- Mobile-Friendly - Optimized for all device sizes
-- Real-time Updates - Dynamic price updates and portfolio calculations
-- Modern Design - Clean, intuitive user interface
+## Tech Stack
 
----
+| Layer | Technologies |
+|---|---|
+| Runtime | Java 21, Spring Boot 3.5 |
+| Web | Spring MVC, Thymeleaf, Bootstrap 5 |
+| Security | Spring Security, BCrypt password encoding |
+| Data Access | Spring Data JPA, Hibernate |
+| Datastores | H2 (dev/test), PostgreSQL (prod profile) |
+| External Integration | Finnhub API via WebClient (WebFlux client) |
+| API Docs | springdoc OpenAPI / Swagger UI |
+| Testing | JUnit 5, Mockito, Spring Boot Test |
 
-##  Architecture
+## Architecture
 
-###  Project Structure
-```
-src/
-├── main/
-│   ├── java/com/example/stockeasy/
-│   │   ├── config/          # Spring configuration
-│   │   ├── domain/          # JPA entities
-│   │   ├── repo/            # Data repositories
-│   │   ├── service/         # Business logic
-│   │   └── web/             # Controllers & REST endpoints
-│   └── resources/
-│       ├── templates/       # Thymeleaf templates
-│       └── application*.yml # Configuration files
-└── test/
-    └── java/com/example/stockeasy/
+```mermaid
+flowchart TD
+    Browser[Browser_Thymeleaf_UI] --> WebControllers[Web_Controllers]
+    Browser --> JsonEndpoints[JSON_Endpoints]
+    WebControllers --> Services[Service_Layer]
+    JsonEndpoints --> Services
+    Services --> Repositories[Spring_Data_Repositories]
+    Repositories --> DB[(H2_or_PostgreSQL)]
+    Services --> FinnhubService[Finnhub_Service]
+    FinnhubService --> Cache[InMemory_TTL_Cache]
+    FinnhubService --> FinnhubAPI[Finnhub_API]
 ```
 
-###  Technology Stack
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Backend** | Spring Boot 3.5.0 | Application framework |
-| **Database** | H2/PostgreSQL | H2 for dev/test, PostgreSQL for production |
-| **ORM** | Spring Data JPA | Database persistence |
-| **Security** | Spring Security | Authentication & authorization |
-| **Frontend** | Thymeleaf + Bootstrap | Server-side rendering |
-| **API Docs** | SpringDoc OpenAPI | REST API documentation |
-| **Testing** | JUnit 5 + H2 | Unit & integration tests |
-| **Build** | Maven 3.9+ | Project management |
+### Controller Layer
 
----
+- `DashboardController`: home and market views
+- `StockController`: stock listing/detail/filter + market data APIs
+- `PortfolioController`: dashboard, buy/sell, history, analysis, AJAX buy
+- `WatchlistController`: watchlist CRUD and alert toggles
+- `CommunityController`: community feed read/create
+- `AuthController`: login/register flows
+- `ResetController`: portfolio reset/validate APIs
+- `UserController`: balance management endpoints
 
-##  Quick Start
+### Service Layer Highlights
 
-###  Prerequisites
-- **Java 21** (JDK)
-- **Maven 3.9+**
-- **PostgreSQL 14+** (for production)
-- **Git** (for cloning)
+- `TransactionService`
+  - `@Transactional` buy/sell orchestration
+  - updates cash balance, transaction records, and portfolio holdings atomically
+- `PortfolioService`
+  - portfolio valuation and P/L calculations
+  - weighted average purchase price updates
+- `MarketDataService` + `FinnhubService`
+  - quote/intraday/profile retrieval
+  - fallback data behavior when external calls fail
+  - retries and global call pacing
+- `CacheService`
+  - in-memory `ConcurrentHashMap` TTL cache to reduce API pressure
+- `PortfolioResetService`
+  - reset-to-baseline workflow for demo/testing scenarios
 
-###  Setup Instructions
+## Domain Model
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/EECS3311F25/StockEasy.git
-   cd StockEasy
-   ```
+Key JPA entities and relationships:
 
-2. **Configure PostgreSQL database**
-   ```bash
-   # Create database
-   createdb stockeasy
-   
-   # Configure application.yml with your database credentials
-   ```
+| Entity | Purpose | Important Mappings |
+|---|---|---|
+| `User` | authentication, profile, cash balance, roles | one-to-many `Portfolio`, `Watchlist`, `Transaction`; `UserDetails` implementation |
+| `Stock` | symbol/company/sector/pricing metadata | one-to-many market/portfolio/watchlist references |
+| `Portfolio` | per-user holdings snapshot | unique `(user_id, stock_id)`, current value + P/L fields |
+| `Transaction` | trade ledger base type | single-table inheritance with `BuyTransaction`/`SellTransaction` |
+| `Watchlist` | tracked symbols + optional alerts | unique `(user_id, stock_id)` |
+| `MarketData` | time-series price snapshots | stock-linked historical and latest price records |
+| `Post` | community feed item | username/content/timestamp |
 
-3. **Build and run the application**
-   ```bash
-   # Build the project
-   ./mvnw clean compile
-   
-   # Run the application
-   ./mvnw spring-boot:run
-   ```
+## Trading Execution Flow
 
-4. **Access the application**
-   - **Web Interface**: http://localhost:8080
-   - **API Documentation**: http://localhost:8080/swagger-ui.html
+1. Authenticated user submits buy/sell intent (`/portfolio/*` or JSON API)
+2. Service layer validates user, stock, quantity, and funds/shares
+3. `TransactionService` persists `BuyTransaction`/`SellTransaction`
+4. Cash balance and portfolio rows are updated in the same transactional boundary
+5. UI reloads dashboard/history with updated holdings and P/L
 
----
+## API Surface
 
-##  Configuration
+Representative endpoints (web + JSON):
 
-###  Environment Profiles
+| Area | Endpoint | Method | Purpose |
+|---|---|---|---|
+| Stocks | `/stocks` | GET | list/filter active stocks |
+| Stocks | `/stocks/{stockId}` | GET | stock detail page |
+| Market Data | `/stocks/api/latest/{symbol}` | GET | latest quote payload |
+| Market Data | `/stocks/api/intraday/{symbol}` | GET | intraday data series |
+| Market Data | `/stocks/api/refresh/{symbol}` | POST | refresh symbol data |
+| Portfolio | `/portfolio/dashboard` | GET | holdings dashboard |
+| Portfolio | `/portfolio/buy` | POST | form-based buy execution |
+| Portfolio | `/portfolio/api/buy` | POST | JSON/AJAX buy flow |
+| Portfolio | `/portfolio/sell` | POST | sell execution |
+| Portfolio | `/portfolio/history` | GET | trade history page |
+| Reset | `/reset/portfolio` | POST | reset portfolio to baseline state |
+| Watchlist | `/watchlist` | GET | watchlist page |
+| Watchlist | `/watchlist/api/add` | POST | AJAX add-to-watchlist |
+| Community | `/community` | GET/POST | feed retrieval and post creation |
+| User Balance | `/users/{userId}/balance/*` | POST/GET | set/add/reset/get balance |
 
-The application supports multiple Spring profiles:
+Interactive API docs: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
-| Profile | Description | Usage |
-|---------|-------------|-------|
-| **dev** | Development configuration | `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev` |
-| **test** | Testing configuration | `./mvnw test -Ptest` |
-| **prod** | Production configuration | Default profile |
+## Security Model
 
-###  Database Configuration
+- Spring Security with custom login page and session-based auth
+- `User` implements `UserDetails`; role values mapped to Spring authorities
+- password hashing through BCrypt encoder
+- route policy:
+  - public: `/`, auth pages, help, stock browsing
+  - authenticated: dashboard/portfolio/watchlist and user operations
+- note: CSRF is currently disabled in `SecurityConfig` for demo simplicity
 
-```yaml
-# src/main/resources/application.yml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/stockeasy
-    username: ${DB_USERNAME:stockeasy}
-    password: ${DB_PASSWORD:password}
-    driver-class-name: org.postgresql.Driver
-```
+## Configuration Profiles
 
-###  Security Configuration
+`application.yml` defines profile-driven runtime behavior:
 
-```yaml
-# JWT and security settings
-spring:
-  security:
-    jwt:
-      secret: ${JWT_SECRET:your-secret-key}
-      expiration: 86400000 # 24 hours
-```
+| Profile | Database | Intended Use |
+|---|---|---|
+| `dev` | H2 in-memory (`create-drop`) | local development/demo |
+| `test` | H2 in-memory | automated test execution |
+| `prod` | PostgreSQL via env vars | deployment-like runs |
 
----
+Required env vars for production-style setup:
 
-##  API Documentation
+- `SPRING_PROFILES_ACTIVE=prod`
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
+- `FINNHUB_API_KEY`
 
-###  Swagger UI
-Access interactive API documentation at:
-```
-http://localhost:8080/swagger-ui.html
-```
+## Quick Start
 
-###  Key API Endpoints
+### Prerequisites
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/stocks` | GET | List all active stocks |
-| `/stocks/search?symbol={symbol}` | GET | Search stock by symbol |
-| `/stocks/{stockId}` | GET | Get stock details |
-| `/stocks/sector/{sector}` | GET | Filter stocks by sector |
-| `/stocks/industry/{industry}` | GET | Filter stocks by industry |
-| `/stocks/above/{price}` | GET | Get stocks above price |
-| `/stocks/below/{price}` | GET | Get stocks below price |
-| `/stocks/api/refresh/{symbol}` | POST | Refresh market data |
-| `/stocks/api/latest/{symbol}` | GET | Get latest market data |
-| `/stocks/api/intraday/{symbol}` | GET | Get intraday data |
-| `/portfolio/dashboard` | GET | User portfolio dashboard |
-| `/portfolio/buy` | POST | Buy stocks |
-| `/portfolio/sell` | POST | Sell stocks |
-| `/portfolio/history` | GET | Transaction history |
-| `/watchlist` | GET | User watchlist |
-| `/watchlist/add` | POST | Add stock to watchlist |
+- Java 21
+- Maven 3.9+
 
-###  Example API Request
+### Run
 
 ```bash
-curl -X GET "http://localhost:8080/stocks/api/latest/AAPL?interval=5min" \
-     -H "Accept: application/json"
+git clone https://github.com/<your-github-username>/StockEasy-Portfolio.git
+cd StockEasy-Portfolio
+mvn spring-boot:run
 ```
 
----
+Open:
+- app: `http://localhost:8080`
+- swagger: `http://localhost:8080/swagger-ui.html`
 
+### Demo Account
 
+- Username: `testuser`
+- Password: `password`
 
-###  Test Coverage
-- **Unit Tests**: JUnit 5 + Mockito
-- **Integration Tests**: Spring Boot Test
-- **Security Tests**: Spring Security Test
-- **Database Tests**: H2 in-memory database
+Seed data is initialized at startup for users, stocks, and community posts.
 
+## Demo Video
 
-Contribution
-
-We welcome small, focused PRs.
-
-How to contribute
-
-Fork & branch: feat/<short-name> or fix/<short-name>.
-
-Run tests: ./mvnw test (keep coverage for changed code).
-
-
-
-Commit messages: short and actionable (e.g., feat: add buy/sell endpoints).
-
-Open a PR describing:
-
-What changed and why
-
-How to test (steps or sample curl)
-
-Any screenshots for UI changes
-
-Issue labels
-
-good first issue – starter tasks
-
-bug – defects
-
-enhancement – new features
-
-documentation – README/docs fixes
-
-Code of Conduct
-Be respectful and constructive. Assume good intent, keep reviews kind and specific.
 <div align="center">
-
-
-
+  <a href="https://drive.google.com/file/d/1oIJ7vFI1ICYzKsyNSGsxgcGAFt7KjuQm/view" target="_blank">
+    <img src="https://img.shields.io/badge/Watch%20the%20Demo%20Video-Google%20Drive-1a73e8?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch the demo video on Google Drive" />
+  </a>
 </div>
+
+Portfolio demo link: [Open the StockEasy demo video](https://drive.google.com/file/d/1oIJ7vFI1ICYzKsyNSGsxgcGAFt7KjuQm/view)
+
+## Screenshots
+
+<p align="center">
+  <img src="./doc/images/market-overview.png" alt="Stock market browsing view" width="48%" />
+  <img src="./doc/images/portfolio-dashboard.png" alt="Portfolio dashboard view" width="48%" />
+</p>
+
+<p align="center">
+  <img src="./doc/images/portfolio-analysis-guide.png" alt="Portfolio analysis guide view" width="48%" />
+  <img src="./doc/images/watchlist.png" alt="Watchlist view" width="48%" />
+</p>
+
+<p align="center">
+  <img src="./doc/images/portfolio-add-funds.png" alt="Add funds modal view" width="48%" />
+</p>
+
+## Agile Workflow
+
+Delivery followed a Scrum-style cadence with Trello as the planning/tracking backbone: backlog grooming, sprint-scoped user stories, acceptance criteria, progress tracking across workflow states, and standup-driven blocker management.
+
+## Documentation
+
+- Sprint and process artifacts: [`doc/`](./doc/)
+- Sprint planning and release process notes: [`doc/sprint1/RPM.md`](./doc/sprint1/RPM.md)
+- Sprint execution/retrospective notes: [`doc/sprint2/SR2.md`](./doc/sprint2/SR2.md), [`doc/sprint3/SR2.md`](./doc/sprint3/SR2.md)
+- System design materials: [`doc/system_design/`](./doc/system_design/)
+
+## Notes
+
+- This is a simulation project. No real trading or brokerage integration is involved.
+- The repository preserves selected course documentation for process transparency and design traceability.
