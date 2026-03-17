@@ -42,6 +42,32 @@ This project originated as a multi-sprint software engineering course submission
 | API Docs | springdoc OpenAPI / Swagger UI |
 | Testing | JUnit 5, Mockito, Spring Boot Test |
 
+## Demo Video
+
+<div align="center">
+  <a href="https://drive.google.com/file/d/1oIJ7vFI1ICYzKsyNSGsxgcGAFt7KjuQm/view" target="_blank">
+    <img src="https://img.shields.io/badge/Watch%20the%20Demo%20Video-Google%20Drive-1a73e8?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch the demo video on Google Drive" />
+  </a>
+</div>
+
+Portfolio demo link: [Open the StockEasy demo video](https://drive.google.com/file/d/1oIJ7vFI1ICYzKsyNSGsxgcGAFt7KjuQm/view)
+
+## Screenshots
+
+<p align="center">
+  <img src="./doc/images/market-overview.png" alt="Stock market browsing view" width="48%" />
+  <img src="./doc/images/portfolio-dashboard.png" alt="Portfolio dashboard view" width="48%" />
+</p>
+
+<p align="center">
+  <img src="./doc/images/portfolio-analysis-guide.png" alt="Portfolio analysis guide view" width="48%" />
+  <img src="./doc/images/watchlist.png" alt="Watchlist view" width="48%" />
+</p>
+
+<p align="center">
+  <img src="./doc/images/portfolio-add-funds.png" alt="Add funds modal view" width="48%" />
+</p>
+
 ## Architecture
 
 ```mermaid
@@ -183,31 +209,6 @@ Open:
 
 Seed data is initialized at startup for users, stocks, and community posts.
 
-## Demo Video
-
-<div align="center">
-  <a href="https://drive.google.com/file/d/1oIJ7vFI1ICYzKsyNSGsxgcGAFt7KjuQm/view" target="_blank">
-    <img src="https://img.shields.io/badge/Watch%20the%20Demo%20Video-Google%20Drive-1a73e8?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch the demo video on Google Drive" />
-  </a>
-</div>
-
-Portfolio demo link: [Open the StockEasy demo video](https://drive.google.com/file/d/1oIJ7vFI1ICYzKsyNSGsxgcGAFt7KjuQm/view)
-
-## Screenshots
-
-<p align="center">
-  <img src="./doc/images/market-overview.png" alt="Stock market browsing view" width="48%" />
-  <img src="./doc/images/portfolio-dashboard.png" alt="Portfolio dashboard view" width="48%" />
-</p>
-
-<p align="center">
-  <img src="./doc/images/portfolio-analysis-guide.png" alt="Portfolio analysis guide view" width="48%" />
-  <img src="./doc/images/watchlist.png" alt="Watchlist view" width="48%" />
-</p>
-
-<p align="center">
-  <img src="./doc/images/portfolio-add-funds.png" alt="Add funds modal view" width="48%" />
-</p>
 
 ## Agile Workflow
 
